@@ -1,0 +1,38 @@
+name: CeX UK Daily Price Tracker
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every day
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  track-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install curl_cffi requests
+
+      - name: Run CeX UK Scraper
+        run: |
+          python scripts/scrape_cex.py
+
+      - name: Commit and Push Price Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add src/data/scrapedGames.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: CeX UK daily price tracker update [$(date -u +'%Y-%m-%d')]" && git push)
