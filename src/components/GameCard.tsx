@@ -133,7 +133,9 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
             </span>
             <span className={`flex items-center gap-1 font-medium ${game.inStock ? 'text-emerald-400' : 'text-zinc-500'}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${game.inStock ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
-              {game.inStock ? `Stokta (${game.stockCount || 5}+)` : 'Tükendi'}
+              {game.inStock
+                ? game.stockCount !== undefined ? `Stokta (${game.stockCount})` : 'Stokta'
+                : 'Tükendi'}
             </span>
           </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { GameItem } from '@/types/game';
+import React, { useEffect, useState } from 'react';
+import { GameItem, PriceHistoryEntry } from '@/types/game';
 import { useApp } from '@/context/AppContext';
 import { formatGbp, formatTry, getPlatformBadgeColor } from '@/lib/utils';
 import { 
@@ -27,12 +27,34 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
   const { exchangeRate, updateGamePrice } = useApp();
   const [newPriceInput, setNewPriceInput] = useState<string>('');
   const [showPriceEdit, setShowPriceEdit] = useState<boolean>(false);
+  const [history, setHistory] = useState<PriceHistoryEntry[]>([]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  useEffect(() => {
+    if (!game) return;
+    if (game.id.startsWith('CUSTOM-')) {
+      setHistory(game.priceHistory || []);
+      setHistoryError(null);
+      return;
+    }
+    let cancelled = false;
+    setIsLoadingHistory(true);
+    setHistoryError(null);
+    fetch(`/api/games/${encodeURIComponent(game.id)}/history`, { cache: 'no-store' })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || 'Fiyat geçmişi alınamadı.');
+        if (!cancelled) setHistory(data.history || []);
+      })
+      .catch((error) => { if (!cancelled) setHistoryError(error.message); })
+      .finally(() => { if (!cancelled) setIsLoadingHistory(false); });
+    return () => { cancelled = true; };
+  }, [game]);
 
   if (!game) return null;
 
   const platformColors = getPlatformBadgeColor(game.platform);
-  const history = game.priceHistory || [];
-
   const prices = history.map((h) => h.price);
   const lowestPrice = Math.min(...prices, game.sellPrice);
   const highestPrice = Math.max(...prices, game.sellPrice, game.originalPrice || game.sellPrice);
@@ -135,7 +157,11 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
             </h4>
 
             <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-3 max-h-48 overflow-y-auto divide-y divide-zinc-800/60">
-              {history.length > 0 ? (
+              {isLoadingHistory ? (
+                <div className="py-4 text-center text-xs text-zinc-500">Fiyat geçmişi yükleniyor...</div>
+              ) : historyError ? (
+                <div className="py-4 text-center text-xs text-rose-400">{historyError}</div>
+              ) : history.length > 0 ? (
                 history.map((entry, index) => {
                   const isLatest = index === history.length - 1;
                   const prevPrice = index > 0 ? history[index - 1].price : entry.price;
@@ -199,7 +225,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
           )}
 
           {/* Manual Price Update Tool for User / Admin */}
-          <div className="pt-2">
+          {game.id.startsWith('CUSTOM-') && <div className="pt-2">
             {!showPriceEdit ? (
               <button
                 onClick={() => setShowPriceEdit(true)}
@@ -236,7 +262,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
                 </button>
               </form>
             )}
-          </div>
+          </div>}
 
         </div>
 

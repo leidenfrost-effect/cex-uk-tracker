@@ -13,7 +13,8 @@ import {
   Gamepad2, 
   PoundSterling,
   Sparkles,
-  Plane
+  Plane,
+  RefreshCw
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -21,6 +22,7 @@ interface HeaderProps {
   onOpenAddGame: () => void;
   onOpenBudgetSettings: () => void;
   onOpenStoreGuide: () => void;
+  onOpenDataRefresh: () => void;
   activeView: 'catalog' | 'trends';
   setActiveView: (view: 'catalog' | 'trends') => void;
 }
@@ -30,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAddGame,
   onOpenBudgetSettings,
   onOpenStoreGuide,
+  onOpenDataRefresh,
   activeView,
   setActiveView,
 }) => {
@@ -42,6 +45,8 @@ export const Header: React.FC<HeaderProps> = ({
     isCustomRate,
     searchQuery,
     setSearchQuery,
+    isLoadingRate,
+    exchangeRateMeta,
   } = useApp();
 
   const budgetPercent = Math.min(100, Math.round((totalBasketGbp / (budgetLimitGbp || 1)) * 100));
@@ -68,8 +73,9 @@ export const Header: React.FC<HeaderProps> = ({
               title="Kuru veya Bütçeyi Güncelle"
             >
               <PoundSterling className="w-3.5 h-3.5 text-amber-400" />
-              <span>1 £ = <strong>{exchangeRate.toFixed(2)} ₺</strong></span>
+              <span>{isLoadingRate ? 'Kur yükleniyor' : <>1 £ = <strong>{exchangeRate.toFixed(2)} ₺</strong></>}</span>
               {isCustomRate && <span className="text-[10px] text-amber-400">(Özel)</span>}
+              {!isCustomRate && exchangeRateMeta?.isStale && <span className="text-[10px] text-rose-400">(Eski)</span>}
             </button>
 
             <button
@@ -127,6 +133,14 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={onOpenDataRefresh}
+              className="p-2 sm:px-3 sm:py-2 bg-zinc-800/90 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-medium text-zinc-200 flex items-center gap-1.5"
+              title="CeX ve TCMB verilerini yenile"
+            >
+              <RefreshCw className="w-4 h-4 text-sky-400" />
+              <span className="hidden xl:inline">Verileri Yenile</span>
+            </button>
             
             {/* View Switcher: Catalog vs Daily Trends */}
             <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800">

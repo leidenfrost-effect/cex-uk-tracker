@@ -1,97 +1,93 @@
-# 🎮 CeX UK Game Price Tracker & Travel Shopping Basket
+# CeX UK Game Price Tracker
 
-İngiltere seyahatiniz öncesinde **CeX UK (`uk.webuy.com`)** mağazalarındaki **PS5, PS4, Xbox Series X/S, Xbox One ve Xbox 360** oyunlarının fiyatlarını canlı takip etmek, seyahat bütçenizi planlamak ve öncelikli alışveriş sepeti oluşturmak için geliştirilmiş modern web uygulaması.
+CeX UK üzerindeki PS5, PS4, Xbox Series X/S, Xbox One ve Xbox 360 oyunlarını takip eden Next.js uygulaması. Katalog GitHub Actions üzerinde Playwright ile doğrulanır, fiyat ve stok değişiklikleri Neon Postgres'e yazılır, GBP/TRY kuru TCMB döviz satış kaynağından alınır.
 
----
+## Mimari
 
-## 🌟 Temel Özellikler
+- **Web:** Next.js 16 App Router, Vercel
+- **Veri:** Neon Postgres
+- **Katalog kaynağı:** CeX UK sitesinin kullandığı Algolia arama akışı
+- **Kur kaynağı:** TCMB `GBP ForexSelling / Unit`
+- **Otomasyon:** Her gün 15:00 UTC (18:00 Türkiye) ve isteğe bağlı GitHub Actions çalıştırması
+- **Kişisel veriler:** Sepet, bütçe, notlar ve özel oyunlar yalnızca tarayıcının `localStorage` alanında tutulur
 
-- **5 Platform Desteği:** PlayStation 5, PlayStation 4, Xbox Series X/S, Xbox One ve Xbox 360 için kategori filtreleme ve anlık arama.
-- **Çift Para Birimi (GBP £ & TRY ₺):** Canlı döviz kuru ile anlık TL çevirimi + Bankanızın yurt dışı kart kuruna göre **manuel kur belirleme**.
-- **İngiltere Seyahat Sepeti & Bütçe Planlayıcı:**
-  - Öncelik etiketleri (🔥 *Kesin Alınacak*, ⭐ *Yüksek Öncelik*, 👍 *Fiyatı Uygunsa*, 🎯 *Alternatif*).
-  - Seyahat bütçesi belirleme (örn. £300) ve harcama limit çubuğu.
-  - Hedef CeX Londra / UK mağazası atama (Tottenham Court Rd, Oxford St, Camden vb.).
-  - Mağazada gezerken diski aldığınızda işaretleyebileceğiniz **"Satın Alındı" kontrol kutusu**.
-  - Seyahatte internetsiz kullanım için **Tek Tıkla Yazdırılabilir / PDF Seyahat Kontrol Listesi** ve **CSV/Excel İndirme**.
-- **Günlük Fiyat Takibi & Fiyat Geçmişi:**
-  - Oyunların tarihsel fiyat değişim grafiği ve en dip fiyat indikatörleri.
-  - Günün en çok düşen fiyatları ve 10 £ altı kelepir oyunlar paneli.
-  - CeX Cash (Nakit) ve Voucher (Kupon) geri alım takas değerleri.
-- **Otomasyon & Güncelleme:**
-  - Uygulama içi tek tıkla yeni oyun ekleme ve fiyat düzenleme.
-  - Günlük otomatik fiyat çekimi için hazır **GitHub Actions Cron Workflow** (`.github/workflows/daily-price-tracker.yml`).
-  - Yerel kazıma scripti (`scripts/scrape_cex.py`).
+Scraper beş platformu ve katalog bütünlüğünü doğrulamadan veritabanını değiştirmez. Eksik veya karışmış sonuçlar eski doğru verinin üzerine yazılmaz.
 
----
+## 1. Neon ve Vercel kurulumu
 
-## 🚀 Vercel'e Nasıl Deploy Edilir? (1-Tık Dağıtım)
+1. Vercel Marketplace üzerinden bir Neon Postgres veritabanı oluşturup projeye bağlayın.
+2. Neon SQL Editor'da [`db/migrations/001_initial.sql`](db/migrations/001_initial.sql) dosyasını çalıştırın. Alternatif olarak yerelde `python scripts/migrate_db.py` kullanabilirsiniz.
+3. `.env.example` dosyasını `.env.local` olarak kopyalayıp gerçek değerleri girin.
+4. Vercel Project Settings → Environment Variables bölümüne şunları ekleyin:
+   - `DATABASE_URL`
+   - `ADMIN_REFRESH_SECRET`
+   - `GITHUB_ACTIONS_TOKEN`
+   - `GITHUB_REPOSITORY=leidenfrost-effect/cex-uk-tracker`
+   - `GITHUB_WORKFLOW_FILE=daily-price-tracker.yml`
+   - `GITHUB_DEFAULT_BRANCH=main`
 
-Projeyi Vercel'de yayınlamak için aşağıdaki iki yöntemden birini kullanabilirsiniz:
+`GITHUB_ACTIONS_TOKEN`, yalnızca bu repo için **Actions: Read and write** yetkili fine-grained token olmalıdır. Token hiçbir zaman istemci tarafına gönderilmez.
 
-### Yöntem 1: GitHub ile Dağıtım (Önerilen)
-1. Bu projeyi bir GitHub reposuna yükleyin:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: CeX UK Game Tracker"
-   git remote add origin https://github.com/KULLANICI_ADINIZ/cex-uk-tracker.git
-   git branch -M main
-   git push -u origin main
-   ```
-2. [Vercel Dashboard](https://vercel.com/new)'a gidin.
-3. Reponuzu seçip **Deploy** butonuna tıklayın.
-4. Sıfır ayarla birkaç saniyede canlıya alınacaktır!
-*(Her gün gece 00:00'da GitHub Actions otomatik fiyatları kontrol edip repoya commit atacak ve Vercel otomatik güncellenecektir).*
+## 2. GitHub Actions kurulumu
 
-### Yöntem 2: Vercel CLI ile Dağıtım
-Terminalden doğrudan Vercel'e göndermek için:
-```bash
-npx vercel
-```
-*(Gelen sorulara Enter diyerek onaylayın, anında canlı URL'iniz oluşturulur).*
+GitHub repo Settings → Secrets and variables → Actions bölümüne `DATABASE_URL` secret'ını ekleyin. Workflow:
 
----
+- PostgreSQL migration'ını uygular.
+- Chromium ve Playwright'ı kurar.
+- CeX kategorilerini canlı facet verisinden keşfeder.
+- Beş platformu doğrular ve tek işlemde Neon'a yazar.
+- TCMB kuru alınamazsa oyun verisini `partial` durumuyla korur ve son doğru kuru değiştirmez.
 
-## 💻 Yerel Geliştirme (Local Development)
+İlk veriyi oluşturmak için Actions → **CeX UK Daily Price Tracker** → **Run workflow** çalıştırın.
 
-```bash
-# Bağımlılıkları yükleyin
+## 3. Yerel geliştirme
+
+```powershell
 npm install
-
-# Geliştirme sunucusunu başlatın
+python -m pip install -r requirements.txt
+playwright install chromium
+Copy-Item .env.example .env.local
+python scripts/migrate_db.py
 npm run dev
 ```
-Tarayıcınızda `http://localhost:3000` adresini açın.
 
----
+Tarayıcı: `http://localhost:3000`
 
-## 🛠️ Klasör Yapısı
+Canlı veriyi veritabanına yazmadan doğrulamak için:
 
-```
-├── .github/workflows/      # Günlük otomatik fiyat takip cron iş akışı
-├── scripts/
-│   └── scrape_cex.py       # CeX UK kazıma ve fiyat güncelleme scripti
-├── src/
-│   ├── app/                # Next.js 14 App Router sayfaları ve API rotaları
-│   │   ├── api/exchange-rate/ # Canlı GBP -> TRY kur servisi
-│   │   ├── api/games/         # Oyun veri API'si
-│   │   ├── globals.css        # Tailwind & Print stilleri
-│   │   ├── layout.tsx         # Kök düzen
-│   │   └── page.tsx           # Ana uygulama paneli
-│   ├── components/         # Modüler UI bileşenleri (Header, GameCard, BasketModal, vb.)
-│   ├── context/            # AppContext (Sepet, Bütçe, Filtreler, LocalStorage)
-│   ├── data/               # Önceden yüklenmiş zengin CeX oyun verisi ve mağazalar
-│   ├── lib/                # Para birimi, indirim ve stil yardımcı fonksiyonları
-│   └── types/              # TypeScript veri modelleri
-├── vercel.json             # Vercel yapılandırması
-└── package.json
+```powershell
+python scripts/scrape_all_cex.py --platforms PS5 --dry-run
+python scripts/scrape_all_cex.py --dry-run
 ```
 
----
+Tam senkronizasyon:
 
-## 🇬🇧 İngiltere Seyahati İçin CeX Alışveriş İpuçları
+```powershell
+python scripts/scrape_all_cex.py
+```
 
-1. **Diski Kontrol Edin:** CeX mağazalarında kutular vitrinde boştur. Kasada diski zarftan çıkartırlar; ödeme yapmadan önce diskte kılcal çizik veya leke olmadığını mutlaka gözünüzle kontrol edin.
-2. **Region Free:** PS4, PS5 ve Xbox Series X/One oyunları bölge kilitsizdir, Türkiye konsollarında sorunsuz çalışır.
-3. **24 Ay Garanti:** CeX UK'den aldığınız tüm oyunlar ve cihazlar 24 ay mağaza garantilidir. Fişinizi saklamayı unutmayın.
+## Kontroller
+
+```powershell
+npm run typecheck
+npm run lint
+npm run test:scraper
+npm run build
+```
+
+## API özeti
+
+- `GET /api/games` — katalog, filtreler ve sayfalama
+- `GET /api/games/:id/history` — değişiklik bazlı fiyat/stok geçmişi
+- `GET /api/trends` — fiyat düşüşleri ve uygun fiyatlı oyunlar
+- `GET /api/exchange-rate` — son doğrulanmış TCMB GBP/TRY kuru
+- `POST /api/admin/refresh` — admin parolasıyla GitHub workflow tetikleme
+- `GET /api/sync-status` — son senkronizasyon durumu
+
+## Veri davranışı
+
+- Değişmeyen fiyatlar için her gün yeni satır üretilmez; günlük kontrol `sync_runs` tablosunda kayıtlıdır.
+- Satış, nakit, kupon veya stok değiştiğinde `game_state_changes` kaydı oluşur.
+- Tam taramada kaybolan ürün silinmez; pasif ve stok dışı işaretlenir.
+- Kısmi/başarısız tarama ürünleri topluca stok dışı yapmaz.
+- Sabit veya uydurma kur ve stok fallback değeri kullanılmaz.

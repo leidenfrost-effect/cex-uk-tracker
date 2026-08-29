@@ -12,6 +12,7 @@ import { DailyTrendsView } from '@/components/DailyTrendsView';
 import { BudgetSettingsModal } from '@/components/BudgetSettingsModal';
 import { AddGameModal } from '@/components/AddGameModal';
 import { StoreGuideModal } from '@/components/StoreGuideModal';
+import { DataRefreshModal } from '@/components/DataRefreshModal';
 import { calculateDiscount, formatGbp, formatTry } from '@/lib/utils';
 import { Gamepad2, ShoppingBag, Search, Sparkles, FilterX, HelpCircle } from 'lucide-react';
 
@@ -27,6 +28,9 @@ export default function Home() {
     basketCount,
     totalBasketGbp,
     totalBasketTry,
+    isLoadingGames,
+    catalogError,
+    refreshCatalog,
   } = useApp();
 
   const [activeView, setActiveView] = useState<'catalog' | 'trends'>('catalog');
@@ -35,6 +39,7 @@ export default function Home() {
   const [isBudgetSettingsOpen, setIsBudgetSettingsOpen] = useState(false);
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const [isStoreGuideOpen, setIsStoreGuideOpen] = useState(false);
+  const [isDataRefreshOpen, setIsDataRefreshOpen] = useState(false);
 
   // Filtered & Sorted games
   const filteredGames = useMemo(() => {
@@ -110,6 +115,7 @@ export default function Home() {
           onOpenAddGame={() => setIsAddGameOpen(true)}
           onOpenBudgetSettings={() => setIsBudgetSettingsOpen(true)}
           onOpenStoreGuide={() => setIsStoreGuideOpen(true)}
+          onOpenDataRefresh={() => setIsDataRefreshOpen(true)}
           activeView={activeView}
           setActiveView={setActiveView}
         />
@@ -151,7 +157,14 @@ export default function Home() {
               </div>
 
               {/* Games Grid */}
-              {filteredGames.length === 0 ? (
+              {isLoadingGames ? (
+                <div className="py-16 text-center text-sm text-zinc-400">CeX kataloğu yükleniyor...</div>
+              ) : catalogError ? (
+                <div className="bg-rose-950/30 border border-rose-900 rounded-2xl p-6 text-center text-rose-300">
+                  <p className="text-sm font-semibold">{catalogError}</p>
+                  <button onClick={() => void refreshCatalog()} className="mt-3 px-4 py-2 bg-zinc-800 rounded-xl text-xs text-white">Tekrar Dene</button>
+                </div>
+              ) : filteredGames.length === 0 ? (
                 <div className="bg-[#181818] border border-zinc-800 rounded-3xl p-12 text-center text-zinc-400 max-w-md mx-auto my-8">
                   <FilterX className="w-12 h-12 mx-auto text-zinc-600 mb-3" />
                   <h3 className="font-bold text-base text-white">Aradığınız kriterlere uygun oyun bulunamadı</h3>
@@ -231,6 +244,8 @@ export default function Home() {
         isOpen={isStoreGuideOpen}
         onClose={() => setIsStoreGuideOpen(false)}
       />
+
+      <DataRefreshModal isOpen={isDataRefreshOpen} onClose={() => setIsDataRefreshOpen(false)} />
 
       {/* Footer */}
       <footer className="mt-12 border-t border-zinc-800/80 bg-[#0d0d0d] text-zinc-500 text-xs py-8 px-4">

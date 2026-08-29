@@ -2,37 +2,47 @@ name: CeX UK Daily Price Tracker
 
 on:
   schedule:
-    # Runs at 00:00 UTC every day
-    - cron: '0 0 * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+    # 18:00 Europe/Istanbul; TCMB publishes the business-day rate after 15:30.
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+    inputs:
+      trigger:
+        description: Refresh source
+        required: false
+        default: github
+
+concurrency:
+  group: cex-catalog-sync
+  cancel-in-progress: false
 
 jobs:
-  track-and-update:
+  validate-and-sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     permissions:
-      contents: write
+      contents: read
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      MIN_ITEMS_PER_PLATFORM: '25'
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install curl_cffi requests
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
 
-      - name: Run CeX UK Scraper
-        run: |
-          python scripts/scrape_cex.py
+      - name: Apply database migrations
+        run: python scripts/migrate_db.py
 
-      - name: Commit and Push Price Changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add src/data/scrapedGames.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: CeX UK daily price tracker update [$(date -u +'%Y-%m-%d')]" && git push)
+      - name: Scrape, validate and persist CeX prices
+        run: python scripts/scrape_all_cex.py

@@ -1,26 +1,29 @@
 export type Platform = 'PS5' | 'PS4' | 'XBOX_SX' | 'XBOX_ONE' | 'XBOX_360';
-
 export type PriorityLevel = 'must_buy' | 'high' | 'nice_to_have' | 'backup';
 
 export interface PriceHistoryEntry {
-  date: string; // YYYY-MM-DD
-  price: number; // in GBP £
+  date: string;
+  price: number;
+  cashPrice?: number;
+  exchangePrice?: number;
+  inStock?: boolean;
+  stockCount?: number;
 }
 
 export interface GameItem {
-  id: string; // e.g. "PS5-001" or CeX boxId
+  id: string;
   title: string;
   platform: Platform;
   categoryName: string;
-  sellPrice: number; // Selling price in £ GBP
-  originalPrice?: number; // Previous/MSRP price in £ GBP for discount tracking
-  cashPrice?: number; // CeX Buy for Cash in £ GBP
-  exchangePrice?: number; // CeX Buy for Voucher in £ GBP
+  sellPrice: number;
+  originalPrice?: number;
+  cashPrice?: number;
+  exchangePrice?: number;
   imageUrl: string;
   inStock: boolean;
   stockCount?: number;
   condition?: 'Mint' | 'Boxed' | 'Unboxed' | 'Standard';
-  rating?: number; // e.g. 4.8 / 5
+  rating?: number;
   releaseYear?: number;
   genre?: string;
   cexUrl?: string;
@@ -41,7 +44,7 @@ export interface BasketItem {
 
 export interface TravelBudget {
   limitGbp: number;
-  customTryRate?: number; // Override live GBP to TRY rate
+  customTryRate?: number;
 }
 
 export interface StoreLocation {
@@ -51,4 +54,34 @@ export interface StoreLocation {
   address: string;
   region: string;
   isPopularTravelSpot?: boolean;
+}
+
+export interface CatalogMeta {
+  total: number;
+  countsByPlatform: Partial<Record<Platform, number>>;
+  lastSuccessfulSyncAt: string | null;
+}
+
+export interface ExchangeRateSnapshot {
+  rate: number;
+  base: string;
+  target: string;
+  source: string;
+  sourceDate: string;
+  fetchedAt: string;
+  isStale: boolean;
+}
+
+export interface SyncRunSummary {
+  id: string;
+  externalRunId: string | null;
+  trigger: 'schedule' | 'manual' | 'local';
+  status: 'queued' | 'running' | 'succeeded' | 'partial' | 'failed';
+  startedAt: string;
+  finishedAt: string | null;
+  platformCounts: Record<string, number>;
+  gamesSeen: number;
+  gamesChanged: number;
+  exchangeRateUpdated: boolean;
+  errorSummary: string | null;
 }

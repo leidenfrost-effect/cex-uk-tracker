@@ -76,7 +76,7 @@ export const GameFilters: React.FC = () => {
             <span className="text-zinc-400">Sırala:</span>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => setSortBy(e.target.value as 'price_asc' | 'price_desc' | 'discount' | 'title' | 'rating')}
               className="bg-transparent text-white font-medium focus:outline-none cursor-pointer"
             >
               <option value="discount" className="bg-zinc-900 text-white">🔥 En Çok İndirimdeki</option>
