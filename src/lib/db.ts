@@ -1,14 +1,43 @@
 import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
+import { Pool } from 'pg';
 import { GameItem, Platform, PriceHistoryEntry, SyncRunSummary } from '@/types/game';
 
-let client: NeonQueryFunction<false, false> | null = null;
+type SqlClient = {
+  query: (queryWithPlaceholders: string, params?: unknown[]) => Promise<unknown[]>;
+};
+
+let neonClient: NeonQueryFunction<false, false> | null = null;
+let postgresPool: Pool | null = null;
 export class DatabaseConfigurationError extends Error {}
 
-export function getSql(): NeonQueryFunction<false, false> {
+function getDatabaseUrl() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new DatabaseConfigurationError('DATABASE_URL is not configured.');
-  if (!client) client = neon(databaseUrl);
-  return client;
+  return databaseUrl;
+}
+
+function getNeonSql(databaseUrl: string): SqlClient {
+  if (!neonClient) neonClient = neon(databaseUrl);
+  return {
+    query: (queryWithPlaceholders, params) => neonClient!.query(queryWithPlaceholders, params),
+  };
+}
+
+function getPostgresSql(databaseUrl: string): SqlClient {
+  if (!postgresPool) postgresPool = new Pool({ connectionString: databaseUrl });
+  return {
+    query: async (queryWithPlaceholders, params) => {
+      const result = await postgresPool!.query(queryWithPlaceholders, params);
+      return result.rows;
+    },
+  };
+}
+
+export function getSql(): SqlClient {
+  const databaseUrl = getDatabaseUrl();
+  return process.env.DB_DRIVER === 'postgres'
+    ? getPostgresSql(databaseUrl)
+    : getNeonSql(databaseUrl);
 }
 
 type DbRow = Record<string, unknown>;
@@ -29,6 +58,14 @@ function nullableNumber(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function isoDate(value: unknown): string {
+  if (!(value instanceof Date)) return String(value).slice(0, 10);
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function rowToGame(row: DbRow): GameItem {
@@ -96,7 +133,7 @@ export async function getGameHistory(gameId: string, limit = 365): Promise<Price
      FROM game_state_changes WHERE game_id = $1 ORDER BY observed_date ASC LIMIT $2`, [gameId, limit]
   );
   return (rows as DbRow[]).map((row) => ({
-    date: String(row.observed_date).slice(0, 10), price: Number(row.sell_price),
+    date: isoDate(row.observed_date), price: Number(row.sell_price),
     cashPrice: nullableNumber(row.cash_price), exchangePrice: nullableNumber(row.exchange_price),
     inStock: Boolean(row.in_stock), stockCount: nullableNumber(row.stock_count),
   }));
@@ -109,7 +146,7 @@ export async function getLatestExchangeRate() {
   );
   const row = (rows as DbRow[])[0];
   if (!row) return null;
-  const sourceDate = String(row.source_date).slice(0, 10);
+  const sourceDate = isoDate(row.source_date);
   const ageMs = Date.now() - new Date(`${sourceDate}T00:00:00+03:00`).getTime();
   return { rate: Number(row.rate), base: String(row.base_currency).trim(), target: String(row.target_currency).trim(),
     source: String(row.source), sourceDate, fetchedAt: new Date(String(row.observed_at)).toISOString(),

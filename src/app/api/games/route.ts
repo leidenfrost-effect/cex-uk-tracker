@@ -3,6 +3,7 @@ import { DatabaseConfigurationError, listGames } from '@/lib/db';
 import { Platform } from '@/types/game';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 const PLATFORMS = new Set<Platform>(['PS5', 'PS4', 'XBOX_SX', 'XBOX_ONE', 'XBOX_360']);
 const SORTS = new Set(['price_asc', 'price_desc', 'discount', 'title', 'rating']);
 

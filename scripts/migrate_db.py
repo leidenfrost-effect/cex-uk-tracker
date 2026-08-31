@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply idempotent SQL migrations to the configured Neon database."""
+"""Apply idempotent SQL migrations to the configured PostgreSQL database."""
 from __future__ import annotations
 
 import os
