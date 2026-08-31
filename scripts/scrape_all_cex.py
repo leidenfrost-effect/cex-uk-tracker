@@ -482,7 +482,7 @@ async def scrape_catalog(platforms: list[str], headed: bool) -> tuple[dict[str, 
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Synchronize validated CeX UK game prices to Neon.")
+    parser = argparse.ArgumentParser(description="Synchronize validated CeX UK game prices to PostgreSQL.")
     parser.add_argument("--platforms", default=",".join(PLATFORMS))
     parser.add_argument("--min-items", type=int, default=int(os.getenv("MIN_ITEMS_PER_PLATFORM", "25")))
     parser.add_argument("--headed", action="store_true")
@@ -529,7 +529,7 @@ async def main() -> None:
         if args.dry_run:
             return
         changed = write_snapshot(connection, run_id, games_by_platform, rate, rate_error)
-        print(f"Neon sync complete: seen={total}, changed={changed}, status={'succeeded' if rate else 'partial'}")
+        print(f"PostgreSQL sync complete: seen={total}, changed={changed}, status={'succeeded' if rate else 'partial'}")
     except Exception as exc:
         if connection and run_id:
             mark_failed(connection, run_id, exc)

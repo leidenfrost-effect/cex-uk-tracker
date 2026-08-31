@@ -53,6 +53,29 @@ npm run dev
 
 Tarayıcı: `http://localhost:3000`
 
+### Yerel PostgreSQL ile test
+
+Docker Desktop ve Docker Compose ile yerel veritabanını başlatın:
+
+```powershell
+docker compose up -d postgres
+$env:DATABASE_URL = "postgresql://cex_local:cex_local@localhost:5433/cex_tracker?sslmode=disable"
+$env:DB_DRIVER = "postgres"
+python scripts/migrate_db.py
+```
+
+Web uygulamasının yerel veritabanını kullanması için `.env.local` dosyasında da `DB_DRIVER=postgres` ve yukarıdaki `DATABASE_URL` değerleri bulunmalıdır. Geliştirme sunucusunu yeniden başlatın.
+
+Gerçek CeX katalog verisini ve TCMB kurunu yerel veritabanına almak için:
+
+```powershell
+$env:DATABASE_URL = "postgresql://cex_local:cex_local@localhost:5433/cex_tracker?sslmode=disable"
+$env:DB_DRIVER = "postgres"
+python scripts/scrape_all_cex.py
+```
+
+Production/Neon ortamında `DB_DRIVER=neon` kullanılır.
+
 Canlı veriyi veritabanına yazmadan doğrulamak için:
 
 ```powershell
