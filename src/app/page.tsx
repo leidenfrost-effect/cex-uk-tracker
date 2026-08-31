@@ -106,7 +106,7 @@ export default function Home() {
   }, [games, selectedPlatform, searchQuery, maxPriceFilter, onlyInStock, onlyPriceDrops, sortBy]);
 
   return (
-    <div className="min-h-screen bg-[#121212] flex flex-col justify-between">
+    <div className="min-h-screen overflow-x-hidden bg-[#121212] flex flex-col justify-between pb-20 sm:pb-0">
       
       {/* Top Header */}
       <div>
@@ -121,7 +121,7 @@ export default function Home() {
         />
 
         {/* Main Content Area */}
-        <main className="max-w-7xl mx-auto px-4 py-6">
+        <main className="max-w-7xl mx-auto px-3 py-4 sm:px-4 sm:py-6">
           
           {activeView === 'trends' ? (
             <DailyTrendsView
@@ -199,7 +199,7 @@ export default function Home() {
 
       {/* Floating Travel Basket Quick Pill (Visible on mobile/tablet) */}
       {basketCount > 0 && !isBasketOpen && (
-        <div className="fixed bottom-6 right-6 z-30 sm:hidden">
+        <div className="fixed bottom-20 right-3 z-30 sm:bottom-6 sm:right-6 sm:hidden">
           <button
             onClick={() => setIsBasketOpen(true)}
             className="flex items-center gap-3 px-4 py-3 bg-red-600 text-white font-bold rounded-full shadow-2xl border-2 border-white/20 animate-bounce"

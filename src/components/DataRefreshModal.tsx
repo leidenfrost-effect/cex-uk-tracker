@@ -60,16 +60,16 @@ export function DataRefreshModal({ isOpen, onClose }: Props) {
     } finally { setIsSubmitting(false); }
   };
 
-  return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm text-white">
-    <div className="w-full max-w-md bg-[#181818] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden">
+  return <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm sm:items-center sm:p-4">
+    <div className="my-2 w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4">
       <div className="p-4 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <div className="p-2 rounded-xl bg-red-600/20 border border-red-500/40"><Database className="w-5 h-5 text-red-400" /></div>
-          <div><h3 className="font-bold">CeX Verilerini Yenile</h3><p className="text-xs text-zinc-400">Yetkili yönetici işlemi</p></div>
+          <div className="min-w-0"><h3 className="truncate font-bold">CeX Verilerini Yenile</h3><p className="hidden text-xs text-zinc-400 sm:block">Yetkili yönetici işlemi</p></div>
         </div>
         <button onClick={onClose} className="p-2 rounded-xl bg-zinc-800 text-zinc-400 hover:text-white"><X className="w-4 h-4" /></button>
       </div>
-      <div className="p-5 space-y-4 text-xs">
+      <div className="max-h-[calc(100dvh-5rem)] overflow-y-auto p-4 space-y-4 text-xs sm:p-5 sm:max-h-none">
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-zinc-400">
           <div className="flex items-center gap-2 text-zinc-200 font-semibold"><ShieldCheck className="w-4 h-4 text-emerald-400" /> Doğrulamalı tam tarama</div>
           <p className="mt-1">Beş platform doğrulanmadan canlı veri değişmez.</p>

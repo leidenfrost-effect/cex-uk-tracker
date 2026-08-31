@@ -64,7 +64,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
   };
 
   return (
-    <div className="group relative bg-[#1c1c1c] hover:bg-[#222222] border border-zinc-800 hover:border-zinc-700/90 rounded-2xl p-4 flex flex-col justify-between transition-all duration-200 shadow-md hover:shadow-xl">
+    <div className="group relative flex min-w-0 flex-col justify-between rounded-2xl border border-zinc-800 bg-[#1c1c1c] p-3 shadow-md transition-all duration-200 hover:border-zinc-700/90 hover:bg-[#222222] hover:shadow-xl sm:p-4">
       
       {/* Top Media & Platform Header */}
       <div>
@@ -122,7 +122,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
             )}
           </div>
 
-          <h3 className="font-bold text-sm text-zinc-100 line-clamp-2 min-h-[2.5rem] leading-snug group-hover:text-white transition-colors" title={game.title}>
+          <h3 className="min-w-0 font-bold text-sm text-zinc-100 line-clamp-2 min-h-[2.5rem] leading-snug transition-colors group-hover:text-white" title={game.title}>
             {game.title}
           </h3>
 
@@ -141,11 +141,11 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
 
           {/* CeX Buyback Trade-in Info (Cash & Voucher) */}
           {(game.cashPrice || game.exchangePrice) && (
-            <div className="mt-2.5 p-2 bg-zinc-900/90 rounded-xl border border-zinc-800/70 text-[10px] text-zinc-400 flex items-center justify-between">
+            <div className="mt-2.5 flex flex-col items-start gap-2 rounded-xl border border-zinc-800/70 bg-zinc-900/90 p-2 text-[10px] text-zinc-400 sm:flex-row sm:items-center sm:justify-between">
               <span className="flex items-center gap-1 text-zinc-400">
                 <Coins className="w-3 h-3 text-amber-400" /> CeX Geri Alış:
               </span>
-              <div className="flex items-center gap-2 font-mono">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono">
                 {game.cashPrice && (
                   <span title="Nakit Geri Alış Fiyatı">
                     Nakit: <strong className="text-zinc-200">£{game.cashPrice.toFixed(2)}</strong>

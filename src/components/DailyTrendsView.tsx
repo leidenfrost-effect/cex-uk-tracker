@@ -51,14 +51,14 @@ export const DailyTrendsView: React.FC<DailyTrendsViewProps> = ({
     <div className="space-y-8 animate-in fade-in duration-300 text-white">
       
       {/* Hero Banner for Daily Tracking */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-red-950 via-[#181818] to-zinc-900 border border-red-900/40 p-6 sm:p-8 shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl border border-red-900/40 bg-gradient-to-br from-red-950 via-[#181818] to-zinc-900 p-4 shadow-xl sm:p-8">
         <div className="max-w-2xl relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/30 border border-red-500/40 text-red-300 text-xs font-bold mb-3">
             <Flame className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
             <span>Günün Fiyat Değişimleri & Takip Raporu</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h2 className="text-xl font-black tracking-tight text-white sm:text-3xl">
             CeX UK Günlük Fiyat Takibi
           </h2>
           <p className="text-sm text-zinc-300 mt-2 leading-relaxed">
@@ -121,7 +121,7 @@ export const DailyTrendsView: React.FC<DailyTrendsViewProps> = ({
                     </h4>
                     <p className="text-[11px] text-zinc-400 mt-0.5">{game.genre}</p>
 
-                    <div className="mt-2 flex items-baseline gap-2">
+                    <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                       <span className="text-base font-black text-white font-mono">
                         {formatGbp(game.sellPrice)}
                       </span>
@@ -172,13 +172,13 @@ export const DailyTrendsView: React.FC<DailyTrendsViewProps> = ({
               <Coins className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">10 £ Altı Kelepir Fırsatlar</h3>
+              <h3 className="text-base font-bold text-white sm:text-lg">10 £ Altı Kelepir Fırsatlar</h3>
               <p className="text-xs text-zinc-400">Küçük bütçeyle çantayı doldurabileceğiniz nostaljik ve efsane oyunlar</p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {under10Games.map((game) => {
             const platformColors = getPlatformBadgeColor(game.platform);
             const isInBasket = basket.some((i) => i.game.id === game.id);

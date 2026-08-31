@@ -13,21 +13,21 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 text-white">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative w-full max-w-2xl max-h-[90vh] bg-[#181818] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-500 flex items-center justify-center">
               <MapPin className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="text-base font-bold text-white">
                 İngiltere Seyahati: CeX Mağaza Rehberi & İpuçları
               </h3>
-              <p className="text-xs text-zinc-400">
+              <p className="hidden text-xs text-zinc-400 sm:block">
                 Londra ve UK'deki en büyük şubeler ve alışveriş tavsiyeleri
               </p>
             </div>
@@ -42,7 +42,7 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Content */}
-        <div className="p-5 space-y-6 overflow-y-auto text-xs">
+        <div className="min-h-0 overflow-y-auto p-4 space-y-6 text-xs sm:p-5">
           
           {/* Important Travel Tips */}
           <div className="bg-amber-950/20 border border-amber-900/40 rounded-2xl p-4 space-y-2">
@@ -109,7 +109,7 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#202020] border-t border-zinc-800 flex justify-end">
+        <div className="flex justify-end border-t border-zinc-800 bg-[#202020] p-4">
           <button
             onClick={onClose}
             className="px-5 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs transition-colors"

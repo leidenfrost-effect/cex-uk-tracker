@@ -60,21 +60,21 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 text-white">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative w-full max-w-lg bg-[#181818] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative my-2 max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center">
               <Settings className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="text-base font-bold text-white">
                 Bütçe ve Döviz Kuru Ayarları
               </h3>
-              <p className="text-xs text-zinc-400">
+              <p className="hidden text-xs text-zinc-400 sm:block">
                 İngiltere seyahat harcamalarınızı ve TRY karşılıklarını özelleştirin
               </p>
             </div>
@@ -89,7 +89,7 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSave} className="p-5 space-y-5">
+        <form onSubmit={handleSave} className="max-h-[calc(100dvh-5rem)] overflow-y-auto p-4 space-y-5 sm:p-5 sm:max-h-none">
           
           {/* Travel Budget Setting */}
           <div>
@@ -109,7 +109,7 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
                 required
               />
             </div>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <span className="text-[11px] text-zinc-400">Hızlı Seçim:</span>
               {[150, 250, 350, 500].map((amount) => (
                 <button
@@ -160,7 +160,7 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
           </div>
 
           {/* Reset Catalog Option */}
-          <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800 pt-3 text-xs">
             <span className="text-zinc-400">Katalog Verilerini Sıfırla:</span>
             <button
               type="button"

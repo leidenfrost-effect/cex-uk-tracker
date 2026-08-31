@@ -109,24 +109,24 @@ export const BasketModal: React.FC<BasketModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-2 backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#161616] border border-zinc-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-white">
+      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#161616] text-white shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#1c1c1c] flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3 border-b border-zinc-800 bg-[#1c1c1c] p-3 sm:gap-4 sm:p-5">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-500 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-white">İngiltere Seyahat Sepetim</h2>
+                <h2 className="line-clamp-1 text-base font-bold text-white sm:text-lg">İngiltere Seyahat Sepetim</h2>
                 <span className="bg-red-600/30 text-red-300 text-xs px-2 py-0.5 rounded-full font-mono font-bold border border-red-500/30">
                   {basket.length} Oyun
                 </span>
               </div>
-              <p className="text-xs text-zinc-400">
+              <p className="hidden text-xs text-zinc-400 sm:block">
                 Mağaza ziyaretleri öncesi bütçenizi ve alınacaklar listenizi yönetin
               </p>
             </div>
@@ -135,20 +135,22 @@ export const BasketModal: React.FC<BasketModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold rounded-xl border border-zinc-700 transition-colors"
+              className="flex items-center gap-1.5 rounded-xl border border-zinc-700 bg-zinc-800 px-2.5 py-2 text-xs font-semibold transition-colors hover:bg-zinc-700 sm:px-3 sm:py-1.5"
               title="Yazdır veya PDF Kaydet"
+              aria-label="Yazdır veya PDF kaydet"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Yazdır / PDF</span>
+              <span className="hidden sm:inline">Yazdır / PDF</span>
             </button>
 
             <button
               onClick={handleExportCsv}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold rounded-xl border border-zinc-700 transition-colors"
+              className="flex items-center gap-1.5 rounded-xl border border-zinc-700 bg-zinc-800 px-2.5 py-2 text-xs font-semibold transition-colors hover:bg-zinc-700 sm:px-3 sm:py-1.5"
               title="Excel / CSV İndir"
+              aria-label="Excel veya CSV indir"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>CSV İndir</span>
+              <span className="hidden sm:inline">CSV İndir</span>
             </button>
 
             <button
@@ -161,7 +163,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
         </div>
 
         {/* Budget Status Bar */}
-        <div className={`px-5 py-3 border-b text-xs flex flex-wrap items-center justify-between gap-3 ${
+        <div className={`px-3 py-3 border-b text-xs flex flex-wrap items-center justify-between gap-3 sm:px-5 ${
           isOverBudget ? 'bg-rose-950/60 border-rose-800/80 text-rose-200' : 'bg-zinc-900 border-zinc-800 text-zinc-300'
         }`}>
           <div className="flex items-center gap-2">
@@ -199,8 +201,8 @@ export const BasketModal: React.FC<BasketModalProps> = ({
         </div>
 
         {/* Filter Tabs & Quick Stats */}
-        <div className="p-3 px-5 bg-[#181818] border-b border-zinc-800 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+        <div className="flex flex-col items-stretch gap-2 border-b border-zinc-800 bg-[#181818] p-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900 p-1 sm:w-auto">
             <button
               onClick={() => setActiveFilter('all')}
               className={`px-3 py-1 rounded-lg font-medium transition-all ${
@@ -293,7 +295,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
 
                       {/* Info */}
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${platformColors.bg} ${platformColors.text} ${platformColors.border}`}>
                             {item.game.platform.replace('_', ' ')}
                           </span>
@@ -301,7 +303,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
                             {priorityMeta.label}
                           </span>
                         </div>
-                        <h4 className={`text-sm font-bold mt-1 text-white ${item.purchased ? 'line-through text-zinc-400' : ''}`}>
+                        <h4 className={`mt-1 min-w-0 text-sm font-bold text-white ${item.purchased ? 'line-through text-zinc-400' : ''}`}>
                           {item.game.title}
                         </h4>
                       </div>
@@ -339,7 +341,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
                       </select>
 
                       {/* Price Tag */}
-                      <div className="text-right font-mono min-w-[70px]">
+                      <div className="min-w-[70px] text-right font-mono">
                         <div className="text-sm font-bold text-white">
                           {formatGbp(item.game.sellPrice * item.quantity)}
                         </div>

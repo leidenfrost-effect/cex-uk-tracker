@@ -57,21 +57,21 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 text-white">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative w-full max-w-lg bg-[#181818] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative my-2 max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center">
               <PlusCircle className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3 className="text-base font-bold text-white">
                 Kataloğa Yeni Oyun Ekle
               </h3>
-              <p className="text-xs text-zinc-400">
+              <p className="hidden text-xs text-zinc-400 sm:block">
                 CeX UK'de gördüğünüz özel bir oyunu listenize dahil edin
               </p>
             </div>
@@ -86,7 +86,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="max-h-[calc(100dvh-5rem)] overflow-y-auto p-4 space-y-4 text-xs sm:p-5 sm:max-h-none">
           
           <div>
             <label className="font-bold text-zinc-300 block mb-1">Oyun Adı *</label>
@@ -100,7 +100,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2">
             <div>
               <label className="font-bold text-zinc-300 block mb-1">Platform *</label>
               <select
@@ -128,7 +128,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2">
             <div>
               <label className="font-bold text-zinc-300 block mb-1">CeX Satış Fiyatı (£) *</label>
               <input

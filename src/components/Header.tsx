@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { formatGbp, formatTry } from '@/lib/utils';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { 
   ShoppingBag, 
   TrendingDown, 
@@ -12,7 +13,6 @@ import {
   PlusCircle, 
   Gamepad2, 
   PoundSterling,
-  Sparkles,
   Plane,
   RefreshCw
 } from 'lucide-react';
@@ -90,18 +90,18 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Main Header Bar */}
-      <div className="max-w-7xl mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 py-3 sm:px-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           
           {/* Logo & Title */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveView('catalog')}>
+          <div className="min-w-0 flex-1">
+            <div className="flex min-w-0 cursor-pointer items-center gap-2" onClick={() => setActiveView('catalog')}>
               <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center font-black text-2xl tracking-tighter text-white shadow-lg shadow-red-600/30 border border-red-500">
                 CeX
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-lg text-white tracking-tight">GameTracker</span>
+                  <span className="truncate font-extrabold text-base text-white tracking-tight sm:text-lg">GameTracker</span>
                   <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-zinc-800 text-red-400 border border-red-900/40">UK</span>
                 </div>
                 <p className="text-[11px] text-zinc-400">PS4 • PS5 • XBOX 360/One/Series X</p>
@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden items-center gap-2 sm:flex sm:gap-3">
             <button
               onClick={onOpenDataRefresh}
               className="p-2 sm:px-3 sm:py-2 bg-zinc-800/90 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-medium text-zinc-200 flex items-center gap-1.5"
@@ -215,6 +215,42 @@ export const Header: React.FC<HeaderProps> = ({
 
           </div>
 
+          <div className="flex shrink-0 items-center gap-1.5 sm:hidden">
+            <button
+              onClick={onOpenDataRefresh}
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800/90 text-zinc-200"
+              title="CeX ve TCMB verilerini yenile"
+              aria-label="Verileri yenile"
+            >
+              <RefreshCw className="h-4 w-4 text-sky-400" />
+            </button>
+            <button
+              onClick={onOpenStoreGuide}
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-800/90 text-zinc-200"
+              title="CeX Londra ve UK mağazaları"
+              aria-label="Mağaza rehberini aç"
+            >
+              <MapPin className="h-4 w-4 text-red-400" />
+            </button>
+            <button
+              onClick={onOpenBasket}
+              className={`relative flex h-11 w-11 items-center justify-center rounded-xl border ${
+                isOverBudget
+                  ? 'border-rose-600 bg-rose-950 text-rose-200'
+                  : 'border-red-500 bg-red-600 text-white'
+              }`}
+              title="Seyahat sepetim"
+              aria-label={`Seyahat sepetini aç${basketCount ? `, ${basketCount} oyun` : ''}`}
+            >
+              <ShoppingBag className="h-4 w-4" />
+              {basketCount > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-black text-red-600">
+                  {basketCount}
+                </span>
+              )}
+            </button>
+          </div>
+
         </div>
 
         {/* Mobile Search Bar */}
@@ -232,12 +268,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mini Budget Bar in Header */}
-        <div className="mt-2 pt-2 border-t border-zinc-800/80 flex items-center justify-between gap-3 text-[11px] text-zinc-400">
-          <div className="flex items-center gap-2 flex-1">
-            <span className="whitespace-nowrap font-medium text-zinc-300">
+        <div className="mt-2 flex flex-col items-stretch justify-between gap-2 border-t border-zinc-800/80 pt-2 text-[11px] text-zinc-400 sm:flex-row sm:items-center sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="shrink-0 whitespace-nowrap text-[10px] font-medium text-zinc-300 sm:text-[11px]">
               Seyahat Bütçesi: <strong className="text-white font-mono">{formatGbp(totalBasketGbp)}</strong> / {formatGbp(budgetLimitGbp)}
             </span>
-            <div className="flex-1 max-w-xs bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+            <div className="h-1.5 min-w-0 flex-1 max-w-xs overflow-hidden rounded-full bg-zinc-800">
               <div
                 className={`h-full transition-all duration-500 ${
                   isOverBudget ? 'bg-rose-500' : budgetPercent > 80 ? 'bg-amber-500' : 'bg-emerald-500'
@@ -257,6 +293,15 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
       </div>
+
+      <MobileBottomNav
+        activeView={activeView}
+        setActiveView={setActiveView}
+        basketCount={basketCount}
+        onOpenBasket={onOpenBasket}
+        onOpenAddGame={onOpenAddGame}
+        onOpenBudgetSettings={onOpenBudgetSettings}
+      />
     </header>
   );
 };

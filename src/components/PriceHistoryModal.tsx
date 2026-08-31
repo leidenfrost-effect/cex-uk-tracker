@@ -72,17 +72,17 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 text-white">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative w-full max-w-xl bg-[#181818] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-500 flex items-center justify-center">
               <History className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${platformColors.bg} ${platformColors.text} ${platformColors.border}`}>
                   {game.platform.replace('_', ' ')}
@@ -104,10 +104,10 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
         </div>
 
         {/* Content Body */}
-        <div className="p-5 space-y-5">
+        <div className="min-h-0 overflow-y-auto p-4 space-y-5 sm:p-5">
           
           {/* Main Price & Trend Badges */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-3">
             <div className="p-3 bg-zinc-900/90 rounded-xl border border-zinc-800 text-center">
               <span className="text-[11px] text-zinc-400 block">Şu Anki CeX Fiyatı</span>
               <span className="text-lg font-black text-white font-mono mt-0.5 block">
@@ -211,7 +211,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
                 <Coins className="w-4 h-4 text-amber-400" />
                 <span>CeX Mağaza Takas / Geri Satış Değerleri</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-zinc-300">
+              <div className="grid grid-cols-1 gap-2 text-zinc-300 sm:grid-cols-2">
                 <div className="bg-zinc-900/80 p-2 rounded-lg border border-zinc-800 flex justify-between items-center">
                   <span className="text-zinc-400">Nakit Satarsanız:</span>
                   <span className="font-mono font-bold text-white">£{game.cashPrice?.toFixed(2)}</span>
@@ -235,7 +235,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
                 <span>Fiyatı manuel güncelle veya yeni tarih kaydı gir</span>
               </button>
             ) : (
-              <form onSubmit={handlePriceUpdate} className="flex items-center gap-2 bg-zinc-900 p-2 rounded-xl border border-zinc-700">
+              <form onSubmit={handlePriceUpdate} className="flex flex-wrap items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 p-2">
                 <span className="text-xs text-zinc-400">Yeni Fiyat (£):</span>
                 <input
                   type="number"
@@ -267,7 +267,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#202020] border-t border-zinc-800 flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 bg-[#202020] p-4">
           <a
             href={game.cexUrl || `https://uk.webuy.com/search?stext=${encodeURIComponent(game.title)}`}
             target="_blank"

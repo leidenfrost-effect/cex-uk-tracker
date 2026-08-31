@@ -66,18 +66,18 @@ export const GameFilters: React.FC = () => {
       </div>
 
       {/* Secondary Controls: Sorting, Price Slider, Toggles */}
-      <div className="mt-4 pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-4 text-xs">
+      <div className="mt-4 flex flex-col items-stretch gap-3 border-t border-zinc-800/80 pt-3 text-xs sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
         
         {/* Left Side: Sort Dropdown & Toggles */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5">
+          <div className="flex min-w-0 items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 sm:py-1.5">
             <ArrowUpDown className="w-3.5 h-3.5 text-zinc-400" />
             <span className="text-zinc-400">Sırala:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'price_asc' | 'price_desc' | 'discount' | 'title' | 'rating')}
-              className="bg-transparent text-white font-medium focus:outline-none cursor-pointer"
+              className="min-w-0 flex-1 cursor-pointer bg-transparent font-medium text-white focus:outline-none"
             >
               <option value="discount" className="bg-zinc-900 text-white">🔥 En Çok İndirimdeki</option>
               <option value="price_asc" className="bg-zinc-900 text-white">💰 Fiyat: En Düşük</option>
@@ -90,7 +90,7 @@ export const GameFilters: React.FC = () => {
           {/* Price Drops Only Toggle */}
           <button
             onClick={() => setOnlyPriceDrops(!onlyPriceDrops)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-semibold transition-all ${
+            className={`flex w-full items-center justify-center gap-1.5 rounded-xl border px-3 py-2 font-semibold transition-all sm:w-auto sm:py-1.5 ${
               onlyPriceDrops
                 ? 'bg-amber-500/20 border-amber-500/60 text-amber-300 shadow-sm'
                 : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
@@ -103,7 +103,7 @@ export const GameFilters: React.FC = () => {
           {/* In Stock Only Toggle */}
           <button
             onClick={() => setOnlyInStock(!onlyInStock)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-semibold transition-all ${
+            className={`flex w-full items-center justify-center gap-1.5 rounded-xl border px-3 py-2 font-semibold transition-all sm:w-auto sm:py-1.5 ${
               onlyInStock
                 ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 shadow-sm'
                 : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200'
@@ -115,7 +115,7 @@ export const GameFilters: React.FC = () => {
         </div>
 
         {/* Right Side: Max Price Slider */}
-        <div className="flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5 w-full sm:w-auto">
+        <div className="flex w-full items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 sm:w-auto sm:gap-3 sm:py-1.5">
           <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400" />
           <span className="text-zinc-400 whitespace-nowrap">Maks Fiyat:</span>
           <input
@@ -125,7 +125,7 @@ export const GameFilters: React.FC = () => {
             step={1}
             value={maxPriceFilter}
             onChange={(e) => setMaxPriceFilter(Number(e.target.value))}
-            className="w-24 sm:w-32 accent-red-600 cursor-pointer"
+            className="min-w-0 flex-1 cursor-pointer accent-red-600 sm:w-32 sm:flex-none"
           />
           <span className="font-mono font-bold text-white whitespace-nowrap">
             £{maxPriceFilter}
