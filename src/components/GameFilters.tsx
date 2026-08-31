@@ -7,7 +7,7 @@ import { SlidersHorizontal, Sparkles, PackageCheck, ArrowUpDown } from 'lucide-r
 
 export const GameFilters: React.FC = () => {
   const {
-    games,
+    catalogMeta,
     selectedPlatform,
     setSelectedPlatform,
     sortBy,
@@ -31,8 +31,8 @@ export const GameFilters: React.FC = () => {
 
   // Count items per platform
   const getCount = (platform: 'ALL' | Platform) => {
-    if (platform === 'ALL') return games.length;
-    return games.filter((g) => g.platform === platform).length;
+    if (platform === 'ALL') return catalogMeta.total;
+    return catalogMeta.countsByPlatform[platform] || 0;
   };
 
   return (

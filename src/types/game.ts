@@ -85,3 +85,14 @@ export interface SyncRunSummary {
   exchangeRateUpdated: boolean;
   errorSummary: string | null;
 }
+
+export interface UserCollection {
+  basket: BasketItem[];
+  customGames: GameItem[];
+  budgetLimitGbp: number;
+  customExchangeRate: number | null;
+  revision: number;
+  migratedAt: string | null;
+}
+
+export type UserCollectionDraft = Omit<UserCollection, 'revision' | 'migratedAt'>;

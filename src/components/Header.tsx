@@ -3,7 +3,7 @@
 import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { formatGbp, formatTry } from '@/lib/utils';
-import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { AccountControls } from '@/components/AccountControls';
 import { 
   ShoppingBag, 
   TrendingDown, 
@@ -133,6 +133,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Action Buttons */}
           <div className="hidden items-center gap-2 sm:flex sm:gap-3">
+            <AccountControls />
             <button
               onClick={onOpenDataRefresh}
               className="p-2 sm:px-3 sm:py-2 bg-zinc-800/90 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-medium text-zinc-200 flex items-center gap-1.5"
@@ -294,14 +295,6 @@ export const Header: React.FC<HeaderProps> = ({
 
       </div>
 
-      <MobileBottomNav
-        activeView={activeView}
-        setActiveView={setActiveView}
-        basketCount={basketCount}
-        onOpenBasket={onOpenBasket}
-        onOpenAddGame={onOpenAddGame}
-        onOpenBudgetSettings={onOpenBudgetSettings}
-      />
     </header>
   );
 };

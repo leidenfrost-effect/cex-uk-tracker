@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { GameItem } from '@/types/game';
 import { useApp } from '@/context/AppContext';
 import { 
@@ -22,7 +23,6 @@ import {
   ShieldCheck,
   Coins
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 interface GameCardProps {
   game: GameItem;
@@ -32,6 +32,7 @@ interface GameCardProps {
 export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) => {
   const { basket, addToBasket, removeFromBasket, exchangeRate } = useApp();
   const [justAdded, setJustAdded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(!game.imageUrl);
 
   const basketEntry = basket.find((item) => item.game.id === game.id);
   const isInBasket = !!basketEntry;
@@ -52,15 +53,6 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1200);
 
-    // Fire minor confetti
-    try {
-      confetti({
-        particleCount: 25,
-        spread: 40,
-        origin: { y: 0.85 },
-        colors: ['#E00000', '#ffffff', '#107C10', '#0070D1'],
-      });
-    } catch {}
   };
 
   return (
@@ -69,12 +61,18 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
       {/* Top Media & Platform Header */}
       <div>
         <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden mb-3 bg-zinc-900 border border-zinc-800/80">
-          <img
-            src={game.imageUrl}
-            alt={game.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
-          />
+          {imageFailed ? (
+            <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-xs font-semibold text-zinc-500">Kapak görseli yok</div>
+          ) : (
+            <Image
+              src={game.imageUrl}
+              alt={game.title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover transition-transform duration-300 motion-safe:group-hover:scale-105"
+              onError={() => setImageFailed(true)}
+            />
+          )}
 
           {/* Platform Badge (Top Left) */}
           <div className="absolute top-2 left-2">
@@ -207,7 +205,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
           >
             {justAdded ? (
               <>
-                <Check className="w-4 h-4 animate-bounce" />
+                <Check className="w-4 h-4" />
                 <span>Sepete Eklendi!</span>
               </>
             ) : isInBasket ? (

@@ -1,6 +1,6 @@
 import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 import { Pool } from 'pg';
-import { GameItem, Platform, PriceHistoryEntry, SyncRunSummary } from '@/types/game';
+import { BasketItem, GameItem, Platform, PriceHistoryEntry, SyncRunSummary, UserCollection, UserCollectionDraft } from '@/types/game';
 
 type SqlClient = {
   query: (queryWithPlaceholders: string, params?: unknown[]) => Promise<unknown[]>;
@@ -52,6 +52,7 @@ export interface GameQuery {
   priceDrops?: boolean;
   sort?: 'price_asc' | 'price_desc' | 'discount' | 'title' | 'rating';
   ids?: string[];
+  includeMeta?: boolean;
 }
 
 function nullableNumber(value: unknown): number | undefined {
@@ -112,19 +113,134 @@ export async function listGames(query: GameQuery) {
     `SELECT g.* FROM games g WHERE ${where} ORDER BY ${order} LIMIT ${bind(query.pageSize)} OFFSET ${bind(offset)}`,
     values
   );
-  const countRows = await sql.query(`SELECT count(*)::int AS total FROM games g WHERE ${where}`, filterValues);
-  const platformRows = await sql.query(
-    `SELECT platform, count(*)::int AS count FROM games WHERE is_active = true GROUP BY platform ORDER BY platform`
-  );
-  const syncRows = await sql.query(
-    `SELECT finished_at FROM sync_runs WHERE status IN ('succeeded', 'partial') ORDER BY finished_at DESC NULLS LAST LIMIT 1`
-  );
+  const [countRows, platformRows, syncRows] = await Promise.all([
+    sql.query(`SELECT count(*)::int AS total FROM games g WHERE ${where}`, filterValues),
+    query.includeMeta
+      ? sql.query(`SELECT platform, count(*)::int AS count FROM games WHERE is_active = true GROUP BY platform ORDER BY platform`)
+      : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT finished_at FROM sync_runs WHERE status IN ('succeeded', 'partial') ORDER BY finished_at DESC NULLS LAST LIMIT 1`)
+      : Promise.resolve([]),
+  ]);
   return {
     games: (rows as DbRow[]).map(rowToGame), total: Number((countRows as DbRow[])[0]?.total || 0),
     countsByPlatform: Object.fromEntries((platformRows as DbRow[]).map((row) => [String(row.platform), Number(row.count)])),
     lastSuccessfulSyncAt: (syncRows as DbRow[])[0]?.finished_at
       ? new Date(String((syncRows as DbRow[])[0].finished_at)).toISOString() : null,
   };
+}
+
+function asJsonArray<T>(value: unknown): T[] {
+  if (Array.isArray(value)) return value as T[];
+  if (typeof value !== 'string') return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed as T[] : [];
+  } catch {
+    return [];
+  }
+}
+
+function rowToUserCollection(row: DbRow): UserCollection {
+  return {
+    basket: asJsonArray<BasketItem>(row.basket),
+    customGames: asJsonArray<GameItem>(row.custom_games),
+    budgetLimitGbp: Number(row.budget_limit_gbp || 300),
+    customExchangeRate: nullableNumber(row.custom_exchange_rate) ?? null,
+    revision: Number(row.revision || 1),
+    migratedAt: row.migrated_at ? new Date(String(row.migrated_at)).toISOString() : null,
+  };
+}
+
+export async function getUserCollection(clerkUserId: string): Promise<UserCollection | null> {
+  const rows = await getSql().query(`SELECT * FROM user_collections WHERE clerk_user_id = $1 LIMIT 1`, [clerkUserId]);
+  const row = (rows as DbRow[])[0];
+  return row ? rowToUserCollection(row) : null;
+}
+
+export async function saveUserCollection(
+  clerkUserId: string,
+  collection: UserCollectionDraft,
+  expectedRevision: number,
+): Promise<UserCollection | null> {
+  const rows = await getSql().query(
+    `INSERT INTO user_collections (
+      clerk_user_id, basket, custom_games, budget_limit_gbp, custom_exchange_rate, revision, updated_at
+    ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5, 1, now())
+    ON CONFLICT (clerk_user_id) DO UPDATE SET
+      basket = EXCLUDED.basket,
+      custom_games = EXCLUDED.custom_games,
+      budget_limit_gbp = EXCLUDED.budget_limit_gbp,
+      custom_exchange_rate = EXCLUDED.custom_exchange_rate,
+      revision = user_collections.revision + 1,
+      updated_at = now()
+    WHERE user_collections.revision = $6
+    RETURNING *`,
+    [
+      clerkUserId,
+      JSON.stringify(collection.basket),
+      JSON.stringify(collection.customGames),
+      collection.budgetLimitGbp,
+      collection.customExchangeRate,
+      expectedRevision,
+    ],
+  );
+  const row = (rows as DbRow[])[0];
+  return row ? rowToUserCollection(row) : null;
+}
+
+function mergeBasket(serverItems: BasketItem[], localItems: BasketItem[]) {
+  const byGameId = new Map(serverItems.map((item) => [item.game.id, item]));
+  for (const localItem of localItems) {
+    const saved = byGameId.get(localItem.game.id);
+    if (!saved) {
+      byGameId.set(localItem.game.id, localItem);
+      continue;
+    }
+    byGameId.set(localItem.game.id, {
+      ...saved,
+      ...localItem,
+      quantity: Math.max(saved.quantity, localItem.quantity),
+      purchased: saved.purchased || localItem.purchased,
+      userNotes: localItem.userNotes || saved.userNotes,
+    });
+  }
+  return Array.from(byGameId.values());
+}
+
+function mergeCustomGames(serverGames: GameItem[], localGames: GameItem[]) {
+  const byId = new Map(serverGames.map((game) => [game.id, game]));
+  localGames.forEach((game) => byId.set(game.id, game));
+  return Array.from(byId.values());
+}
+
+export async function migrateUserCollection(clerkUserId: string, local: UserCollectionDraft): Promise<UserCollection> {
+  const current = await getUserCollection(clerkUserId);
+  if (current?.migratedAt) return current;
+  const merged: UserCollectionDraft = current
+    ? {
+        basket: mergeBasket(current.basket, local.basket),
+        customGames: mergeCustomGames(current.customGames, local.customGames),
+        budgetLimitGbp: local.budgetLimitGbp || current.budgetLimitGbp,
+        customExchangeRate: local.customExchangeRate ?? current.customExchangeRate,
+      }
+    : local;
+  const rows = await getSql().query(
+    `INSERT INTO user_collections (
+      clerk_user_id, basket, custom_games, budget_limit_gbp, custom_exchange_rate, revision, migrated_at, updated_at
+    ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5, 1, now(), now())
+    ON CONFLICT (clerk_user_id) DO UPDATE SET
+      basket = EXCLUDED.basket,
+      custom_games = EXCLUDED.custom_games,
+      budget_limit_gbp = EXCLUDED.budget_limit_gbp,
+      custom_exchange_rate = EXCLUDED.custom_exchange_rate,
+      revision = user_collections.revision + 1,
+      migrated_at = now(),
+      updated_at = now()
+    RETURNING *`,
+    [clerkUserId, JSON.stringify(merged.basket), JSON.stringify(merged.customGames), merged.budgetLimitGbp, merged.customExchangeRate],
+  );
+  return rowToUserCollection((rows as DbRow[])[0]);
 }
 
 export async function getGameHistory(gameId: string, limit = 365): Promise<PriceHistoryEntry[]> {

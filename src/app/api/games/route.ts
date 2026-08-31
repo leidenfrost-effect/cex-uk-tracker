@@ -29,8 +29,11 @@ export async function GET(request: NextRequest) {
       priceDrops: params.get('priceDrops') === 'true',
       sort: sortValue && SORTS.has(sortValue) ? sortValue as 'price_asc' : undefined,
       ids,
+      includeMeta: params.get('includeMeta') === 'true',
     });
-    return NextResponse.json({ success: true, ...result });
+    return NextResponse.json({ success: true, ...result }, {
+      headers: { 'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120' },
+    });
   } catch (error) {
     console.error('Games API failed:', error);
     const message = error instanceof DatabaseConfigurationError

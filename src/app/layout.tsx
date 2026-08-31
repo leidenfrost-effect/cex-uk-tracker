@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { AppProvider } from '@/context/AppContext';
+import { AppProviders } from '@/components/AppProviders';
 
 export const metadata: Metadata = {
   title: 'CeX UK Game Price Tracker & Travel Shopping Basket',
@@ -15,9 +15,9 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark">
       <body className="min-h-screen bg-[#121212] text-zinc-100 flex flex-col selection:bg-red-600 selection:text-white">
-        <AppProvider>
+        <AppProviders>
           {children}
-        </AppProvider>
+        </AppProviders>
       </body>
     </html>
   );

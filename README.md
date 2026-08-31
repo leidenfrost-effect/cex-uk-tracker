@@ -25,6 +25,10 @@ Scraper beş platformu ve katalog bütünlüğünü doğrulamadan veritabanını
    - `GITHUB_REPOSITORY=leidenfrost-effect/cex-uk-tracker`
    - `GITHUB_WORKFLOW_FILE=daily-price-tracker.yml`
    - `GITHUB_DEFAULT_BRANCH=main`
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+
+5. Clerk Dashboard'da bir uygulama oluşturun, Google sosyal bağlantısını etkinleştirin ve Production için Google OAuth istemci bilgilerini Clerk tarafında tanımlayın. Yerel, Preview ve Production anahtarlarını ilgili Vercel ortamlarına ekleyin.
 
 `GITHUB_ACTIONS_TOKEN`, yalnızca bu repo için **Actions: Read and write** yetkili fine-grained token olmalıdır. Token hiçbir zaman istemci tarafına gönderilmez.
 
@@ -104,6 +108,8 @@ npm run build
 - `GET /api/games/:id/history` — değişiklik bazlı fiyat/stok geçmişi
 - `GET /api/trends` — fiyat düşüşleri ve uygun fiyatlı oyunlar
 - `GET /api/exchange-rate` — son doğrulanmış TCMB GBP/TRY kuru
+- `GET/PUT /api/me/collection` — Clerk oturumuna bağlı kişisel koleksiyon
+- `POST /api/me/collection/migrate` — ilk girişte yerel verileri hesaba taşır
 - `POST /api/admin/refresh` — admin parolasıyla GitHub workflow tetikleme
 - `GET /api/sync-status` — son senkronizasyon durumu
 
