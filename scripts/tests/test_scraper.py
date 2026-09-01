@@ -38,6 +38,22 @@ class ScraperTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate_catalog({"PS5": [shared], "PS4": [shared]}, min_items=1)
 
+    def test_transform_preserves_cex_filter_facets(self):
+        game = transform_item({
+            "boxId": "125", "boxName": "Facet Example", "sellPrice": 20,
+            "categoryFriendlyName": "Playstation5 Games", "inStockStore": 1, "inStockOnline": 0,
+            "collectionStores": ["London - W1 Tottenham Crt Rd"], "Developer": ["Example Studio"],
+            "Genre": ["Action", "Adventure"], "PEGI Certificate": ["16+"], "popularityScore": 7.5,
+        }, "PS5")
+        self.assertEqual(game["category_name"], "Playstation5 Games")
+        self.assertTrue(game["in_stock_store"])
+        self.assertFalse(game["in_stock_online"])
+        self.assertEqual(game["stores"], ["London - W1 Tottenham Crt Rd"])
+        self.assertEqual(game["developer"], "Example Studio")
+        self.assertEqual(game["genres"], ["Action", "Adventure"])
+        self.assertEqual(game["age_rating"], "16+")
+        self.assertEqual(game["popularity_score"], 7.5)
+
     def test_tcmb_forex_selling_is_divided_by_unit(self):
         payload = b'''<Tarih_Date Date="08/28/2026">
           <Currency CurrencyCode="GBP"><Unit>2</Unit><ForexSelling>131.0982</ForexSelling></Currency>

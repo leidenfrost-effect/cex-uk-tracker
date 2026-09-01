@@ -52,10 +52,11 @@ STOCK_FILTER = (
     "(inStockStore=1 OR inStockOnline=1) AND (collectionQuantity>0 OR ecomQuantity>0)"
 )
 ATTRIBUTES = [
-    "boxId", "boxName", "sellPrice", "cashPrice", "cashBuyPrice", "exchangePrice",
-    "categoryFriendlyName", "categoryName", "superCatFriendlyName", "imageUrls", "imageNames",
-    "outOfStock", "outOfEcomStock", "cannotBuy", "collectionQuantity", "ecomQuantity",
-    "ecomQuantityOnHand", "rating", "Grade", "boxSaleAllowed", "boxVisibilityOnWeb",
+  "boxId", "boxName", "sellPrice", "cashPrice", "cashBuyPrice", "exchangePrice",
+  "categoryFriendlyName", "categoryName", "superCatFriendlyName", "Genre", "Developer", "PEGI Certificate", "imageUrls", "imageNames",
+  "outOfStock", "outOfEcomStock", "cannotBuy", "collectionQuantity", "ecomQuantity",
+  "ecomQuantityOnHand", "collectionStores", "stores", "availability", "inStockStore", "inStockOnline", "popularityScore",
+  "rating", "Grade", "boxSaleAllowed", "boxVisibilityOnWeb",
 ]
 
 
@@ -109,6 +110,15 @@ def safe_count(item: dict[str, Any]) -> int | None:
     return sum(values) if values else None
 
 
+def text_list(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if value is None:
+        return []
+    text = str(value).strip()
+    return [text] if text else []
+
+
 def transform_item(item: dict[str, Any], platform: str) -> dict[str, Any] | None:
     box_id = str(item.get("boxId") or "").strip()
     title = str(item.get("boxName") or "").strip()
@@ -119,11 +129,17 @@ def transform_item(item: dict[str, Any], platform: str) -> dict[str, Any] | None
     image_urls = item.get("imageUrls") or {}
     image_url = image_urls.get("large") or image_urls.get("medium") or image_urls.get("small") or ""
     stock_count = safe_count(item)
+    in_stock_store = bool(item.get("inStockStore"))
+    in_stock_online = bool(item.get("inStockOnline"))
     availability_flag = item.get("outOfStock") == 0 and item.get("cannotBuy", 0) == 0
     in_stock = stock_count > 0 if stock_count is not None else availability_flag
-    category_name = str(item.get("categoryName") or PLATFORM_LABELS[platform] + " Software")
+    category_name = str(item.get("categoryFriendlyName") or item.get("categoryName") or PLATFORM_LABELS[platform] + " Software")
     grade = str(item.get("Grade") or "").lower()
     condition = "Boxed" if not grade or "boxed" in grade else "Unboxed" if "unboxed" in grade else "Standard"
+    developers = text_list(item.get("Developer"))
+    genres = text_list(item.get("Genre")) or [str(item.get("superCatFriendlyName") or "Gaming").replace("-", " ").title()]
+    stores = text_list(item.get("collectionStores") or item.get("stores"))
+    age_ratings = text_list(item.get("PEGI Certificate"))
 
     return {
         "id": box_id,
@@ -135,10 +151,17 @@ def transform_item(item: dict[str, Any], platform: str) -> dict[str, Any] | None
         "exchange_price": safe_number(item.get("exchangePrice")),
         "image_url": str(image_url),
         "in_stock": bool(in_stock),
+        "in_stock_store": in_stock_store,
+        "in_stock_online": in_stock_online,
         "stock_count": stock_count,
         "condition": condition,
         "rating": safe_number(item.get("rating")),
-        "genre": str(item.get("superCatFriendlyName") or "Gaming").replace("-", " ").title(),
+        "age_rating": age_ratings[0] if age_ratings else None,
+        "developer": developers[0] if developers else None,
+        "genres": genres,
+        "stores": stores,
+        "genre": genres[0],
+        "popularity_score": safe_number(item.get("popularityScore")),
         "cex_url": f"https://uk.webuy.com/product-detail?id={box_id}",
     }
 
@@ -369,12 +392,14 @@ def write_snapshot(
             upsert_sql = """
                 INSERT INTO games (
                   box_id, title, platform, category_name, sell_price, cash_price, exchange_price,
-                  image_url, in_stock, stock_count, condition, rating, genre, cex_url,
+                  image_url, in_stock, in_stock_store, in_stock_online, stock_count, condition, rating,
+                  age_rating, developer, genres, stores, popularity_score, genre, cex_url,
                   is_active, first_seen_at, last_seen_at, last_changed_at, last_sync_id
                 ) VALUES (
                   %(id)s, %(title)s, %(platform)s, %(category_name)s, %(sell_price)s,
                   %(cash_price)s, %(exchange_price)s, %(image_url)s, %(in_stock)s,
-                  %(stock_count)s, %(condition)s, %(rating)s, %(genre)s, %(cex_url)s,
+                  %(in_stock_store)s, %(in_stock_online)s, %(stock_count)s, %(condition)s, %(rating)s,
+                  %(age_rating)s, %(developer)s, %(genres)s, %(stores)s, %(popularity_score)s, %(genre)s, %(cex_url)s,
                   true, now(), now(), now(), %(run_id)s
                 )
                 ON CONFLICT (box_id) DO UPDATE SET
@@ -383,13 +408,16 @@ def write_snapshot(
                     THEN games.sell_price ELSE games.previous_sell_price END,
                   sell_price = EXCLUDED.sell_price, cash_price = EXCLUDED.cash_price,
                   exchange_price = EXCLUDED.exchange_price, image_url = EXCLUDED.image_url,
-                  in_stock = EXCLUDED.in_stock, stock_count = EXCLUDED.stock_count,
-                  condition = EXCLUDED.condition, rating = EXCLUDED.rating, genre = EXCLUDED.genre,
+                  in_stock = EXCLUDED.in_stock, in_stock_store = EXCLUDED.in_stock_store,
+                  in_stock_online = EXCLUDED.in_stock_online, stock_count = EXCLUDED.stock_count,
+                  condition = EXCLUDED.condition, rating = EXCLUDED.rating, age_rating = EXCLUDED.age_rating,
+                  developer = EXCLUDED.developer, genres = EXCLUDED.genres, stores = EXCLUDED.stores,
+                  popularity_score = EXCLUDED.popularity_score, genre = EXCLUDED.genre,
                   cex_url = EXCLUDED.cex_url, is_active = true, last_seen_at = now(),
                   last_changed_at = CASE WHEN
-                    (games.sell_price, games.cash_price, games.exchange_price, games.in_stock, games.stock_count)
+                    (games.sell_price, games.cash_price, games.exchange_price, games.in_stock, games.in_stock_store, games.in_stock_online, games.stock_count)
                     IS DISTINCT FROM
-                    (EXCLUDED.sell_price, EXCLUDED.cash_price, EXCLUDED.exchange_price, EXCLUDED.in_stock, EXCLUDED.stock_count)
+                    (EXCLUDED.sell_price, EXCLUDED.cash_price, EXCLUDED.exchange_price, EXCLUDED.in_stock, EXCLUDED.in_stock_store, EXCLUDED.in_stock_online, EXCLUDED.stock_count)
                     THEN now() ELSE games.last_changed_at END,
                   last_sync_id = EXCLUDED.last_sync_id
             """

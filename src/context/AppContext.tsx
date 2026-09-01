@@ -1,17 +1,21 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { BasketItem, CatalogMeta, ExchangeRateSnapshot, GameItem, Platform, PriceHistoryEntry, PriorityLevel, UserCollection, UserCollectionDraft } from '@/types/game';
+import { AvailabilityFilter, BasketItem, CatalogMeta, ExchangeRateSnapshot, GameItem, Platform, PriceHistoryEntry, PriorityLevel, SortBy, UserCollection, UserCollectionDraft } from '@/types/game';
 
 interface AppContextType {
   games: GameItem[]; basket: BasketItem[]; exchangeRate: number; exchangeRateMeta: ExchangeRateSnapshot | null;
   isCustomRate: boolean; budgetLimitGbp: number; selectedPlatform: 'ALL' | Platform; searchQuery: string;
-  sortBy: 'price_asc' | 'price_desc' | 'discount' | 'title' | 'rating'; maxPriceFilter: number; onlyInStock: boolean; onlyPriceDrops: boolean;
+  sortBy: SortBy; minPriceFilter: number | null; maxPriceFilter: number | null;
+  availabilityFilters: AvailabilityFilter[]; storeFilters: string[]; categoryFilters: string[]; ageRatingFilters: string[];
+  conditionFilters: string[]; developerFilters: string[]; genreFilters: string[]; onlyPriceDrops: boolean;
   isLoadingRate: boolean; isLoadingGames: boolean; isLoadingMore: boolean; hasMoreGames: boolean; catalogError: string | null; catalogMeta: CatalogMeta;
   isSyncing: boolean; syncError: string | null; refreshCatalog: () => Promise<void>; loadMoreGames: () => Promise<void>;
   setSelectedPlatform: (p: 'ALL' | Platform) => void; setSearchQuery: (q: string) => void;
-  setSortBy: (s: 'price_asc' | 'price_desc' | 'discount' | 'title' | 'rating') => void; setMaxPriceFilter: (p: number) => void;
-  setOnlyInStock: (v: boolean) => void; setOnlyPriceDrops: (v: boolean) => void; setBudgetLimitGbp: (limit: number) => void;
+  setSortBy: (s: SortBy) => void; setMinPriceFilter: (p: number | null) => void; setMaxPriceFilter: (p: number | null) => void;
+  setAvailabilityFilters: (v: AvailabilityFilter[]) => void; setStoreFilters: (v: string[]) => void; setCategoryFilters: (v: string[]) => void;
+  setAgeRatingFilters: (v: string[]) => void; setConditionFilters: (v: string[]) => void; setDeveloperFilters: (v: string[]) => void; setGenreFilters: (v: string[]) => void;
+  setOnlyPriceDrops: (v: boolean) => void; clearCatalogFilters: () => void; setBudgetLimitGbp: (limit: number) => void;
   setCustomExchangeRate: (rate: number | null) => void; addToBasket: (game: GameItem, priority?: PriorityLevel, targetStore?: string, userNotes?: string) => void;
   removeFromBasket: (gameId: string) => void; updateBasketPriority: (gameId: string, priority: PriorityLevel) => void;
   updateBasketStore: (gameId: string, targetStore: string) => void; updateBasketNotes: (gameId: string, notes: string) => void;
@@ -27,7 +31,7 @@ const CUSTOM_GAMES_KEY = 'cex_custom_games_v2';
 const BUDGET_KEY = 'cex_travel_budget_v1';
 const RATE_KEY = 'cex_custom_rate_v1';
 const PENDING_SYNC_KEY = 'cex_cloud_pending_sync_v1';
-const EMPTY_META: CatalogMeta = { total: 0, countsByPlatform: {}, lastSuccessfulSyncAt: null };
+const EMPTY_META: CatalogMeta = { total: 0, countsByPlatform: {}, lastSuccessfulSyncAt: null, facets: { availability: [], stores: [], categories: [], ageRatings: [], conditions: [], developers: [], genres: [] } };
 const PAGE_SIZE = 48;
 
 function readLocalDraft(): UserCollectionDraft {
@@ -58,9 +62,16 @@ export function AppProvider({ children, userId = null, authLoaded = true }: { ch
   const [hydrated, setHydrated] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<'ALL' | Platform>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<AppContextType['sortBy']>('discount');
-  const [maxPriceFilter, setMaxPriceFilter] = useState(100);
-  const [onlyInStock, setOnlyInStock] = useState(false);
+  const [sortBy, setSortBy] = useState<SortBy>('relevance');
+  const [minPriceFilter, setMinPriceFilter] = useState<number | null>(null);
+  const [maxPriceFilter, setMaxPriceFilter] = useState<number | null>(null);
+  const [availabilityFilters, setAvailabilityFilters] = useState<AvailabilityFilter[]>([]);
+  const [storeFilters, setStoreFilters] = useState<string[]>([]);
+  const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
+  const [ageRatingFilters, setAgeRatingFilters] = useState<string[]>([]);
+  const [conditionFilters, setConditionFilters] = useState<string[]>([]);
+  const [developerFilters, setDeveloperFilters] = useState<string[]>([]);
+  const [genreFilters, setGenreFilters] = useState<string[]>([]);
   const [onlyPriceDrops, setOnlyPriceDrops] = useState(false);
   const [syncRevision, setSyncRevision] = useState(0);
   const [syncReady, setSyncReady] = useState(false);
@@ -75,12 +86,19 @@ export function AppProvider({ children, userId = null, authLoaded = true }: { ch
     const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE), sort: sortBy });
     if (selectedPlatform !== 'ALL') params.set('platform', selectedPlatform);
     if (searchQuery.trim()) params.set('q', searchQuery.trim());
-    if (maxPriceFilter < 100) params.set('maxPrice', String(maxPriceFilter));
-    if (onlyInStock) params.set('inStock', 'true');
+    if (minPriceFilter !== null) params.set('minPrice', String(minPriceFilter));
+    if (maxPriceFilter !== null) params.set('maxPrice', String(maxPriceFilter));
+    availabilityFilters.forEach((value) => params.append('availability', value));
+    storeFilters.forEach((value) => params.append('store', value));
+    categoryFilters.forEach((value) => params.append('category', value));
+    ageRatingFilters.forEach((value) => params.append('ageRating', value));
+    conditionFilters.forEach((value) => params.append('condition', value));
+    developerFilters.forEach((value) => params.append('developer', value));
+    genreFilters.forEach((value) => params.append('genre', value));
     if (onlyPriceDrops) params.set('priceDrops', 'true');
     if (includeMeta) params.set('includeMeta', 'true');
     return params;
-  }, [maxPriceFilter, onlyInStock, onlyPriceDrops, searchQuery, selectedPlatform, sortBy]);
+  }, [ageRatingFilters, availabilityFilters, categoryFilters, conditionFilters, developerFilters, genreFilters, maxPriceFilter, minPriceFilter, onlyPriceDrops, searchQuery, selectedPlatform, sortBy, storeFilters]);
 
   const requestPage = useCallback(async (page: number, replace: boolean, includeMeta: boolean, signal?: AbortSignal) => {
     const response = await fetch(`/api/games?${buildParams(page, includeMeta)}`, { signal });
@@ -88,7 +106,7 @@ export function AppProvider({ children, userId = null, authLoaded = true }: { ch
     if (!response.ok || !data.success) throw new Error(data.error || 'Katalog alınamadı.');
     const next = data.games as GameItem[];
     setServerGames((current) => replace ? next : [...current, ...next.filter((game) => !current.some((item) => item.id === game.id))]);
-    setCatalogMeta((current) => ({ total: Number(data.total || 0), countsByPlatform: includeMeta ? (data.countsByPlatform || {}) : current.countsByPlatform, lastSuccessfulSyncAt: includeMeta ? (data.lastSuccessfulSyncAt || null) : current.lastSuccessfulSyncAt }));
+    setCatalogMeta((current) => ({ total: Number(data.total || 0), countsByPlatform: includeMeta ? (data.countsByPlatform || {}) : current.countsByPlatform, lastSuccessfulSyncAt: includeMeta ? (data.lastSuccessfulSyncAt || null) : current.lastSuccessfulSyncAt, facets: includeMeta ? (data.facets || EMPTY_META.facets) : current.facets }));
   }, [buildParams]);
 
   const refreshCatalog = useCallback(async () => {
@@ -228,13 +246,18 @@ export function AppProvider({ children, userId = null, authLoaded = true }: { ch
     }));
   };
   const resetToDefaultGames = () => setCustomGames([]);
+  const clearCatalogFilters = () => {
+    setSelectedPlatform('ALL'); setMinPriceFilter(null); setMaxPriceFilter(null); setAvailabilityFilters([]);
+    setStoreFilters([]); setCategoryFilters([]); setAgeRatingFilters([]); setConditionFilters([]);
+    setDeveloperFilters([]); setGenreFilters([]); setOnlyPriceDrops(false);
+  };
   const totalBasketGbp = basket.reduce((sum, item) => sum + item.game.sellPrice * item.quantity, 0);
   const totalBasketTry = totalBasketGbp * exchangeRate;
   const purchasedBasketGbp = basket.filter((item) => item.purchased).reduce((sum, item) => sum + item.game.sellPrice * item.quantity, 0);
   const remainingBudgetGbp = Math.max(0, budgetLimitGbp - totalBasketGbp);
   const basketCount = basket.reduce((sum, item) => sum + item.quantity, 0);
 
-  return <AppContext.Provider value={{ games, basket, exchangeRate, exchangeRateMeta, isCustomRate, budgetLimitGbp, selectedPlatform, searchQuery, sortBy, maxPriceFilter, onlyInStock, onlyPriceDrops, isLoadingRate, isLoadingGames, isLoadingMore, hasMoreGames, catalogError, catalogMeta, isSyncing, syncError, refreshCatalog, loadMoreGames, setSelectedPlatform, setSearchQuery, setSortBy, setMaxPriceFilter, setOnlyInStock, setOnlyPriceDrops, setBudgetLimitGbp, setCustomExchangeRate, addToBasket, removeFromBasket, updateBasketPriority, updateBasketStore, updateBasketNotes, togglePurchased, clearBasket, addCustomGame, updateGamePrice, resetToDefaultGames, totalBasketGbp, totalBasketTry, purchasedBasketGbp, remainingBudgetGbp, basketCount }}>{children}</AppContext.Provider>;
+  return <AppContext.Provider value={{ games, basket, exchangeRate, exchangeRateMeta, isCustomRate, budgetLimitGbp, selectedPlatform, searchQuery, sortBy, minPriceFilter, maxPriceFilter, availabilityFilters, storeFilters, categoryFilters, ageRatingFilters, conditionFilters, developerFilters, genreFilters, onlyPriceDrops, isLoadingRate, isLoadingGames, isLoadingMore, hasMoreGames, catalogError, catalogMeta, isSyncing, syncError, refreshCatalog, loadMoreGames, setSelectedPlatform, setSearchQuery, setSortBy, setMinPriceFilter, setMaxPriceFilter, setAvailabilityFilters, setStoreFilters, setCategoryFilters, setAgeRatingFilters, setConditionFilters, setDeveloperFilters, setGenreFilters, setOnlyPriceDrops, clearCatalogFilters, setBudgetLimitGbp, setCustomExchangeRate, addToBasket, removeFromBasket, updateBasketPriority, updateBasketStore, updateBasketNotes, togglePurchased, clearBasket, addCustomGame, updateGamePrice, resetToDefaultGames, totalBasketGbp, totalBasketTry, purchasedBasketGbp, remainingBudgetGbp, basketCount }}>{children}</AppContext.Provider>;
 }
 
 export function useApp() {

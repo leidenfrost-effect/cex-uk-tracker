@@ -1,6 +1,6 @@
 import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 import { Pool } from 'pg';
-import { BasketItem, GameItem, Platform, PriceHistoryEntry, SyncRunSummary, UserCollection, UserCollectionDraft } from '@/types/game';
+import { AvailabilityFilter, BasketItem, CatalogFacets, GameItem, Platform, PriceHistoryEntry, SortBy, SyncRunSummary, UserCollection, UserCollectionDraft } from '@/types/game';
 
 type SqlClient = {
   query: (queryWithPlaceholders: string, params?: unknown[]) => Promise<unknown[]>;
@@ -47,10 +47,17 @@ export interface GameQuery {
   pageSize: number;
   platform?: Platform;
   query?: string;
+  minPrice?: number;
   maxPrice?: number;
-  inStock?: boolean;
+  availability?: AvailabilityFilter[];
+  stores?: string[];
+  categories?: string[];
+  ageRatings?: string[];
+  conditions?: string[];
+  developers?: string[];
+  genres?: string[];
   priceDrops?: boolean;
-  sort?: 'price_asc' | 'price_desc' | 'discount' | 'title' | 'rating';
+  sort?: SortBy;
   ids?: string[];
   includeMeta?: boolean;
 }
@@ -75,20 +82,41 @@ function rowToGame(row: DbRow): GameItem {
     categoryName: String(row.category_name), sellPrice: Number(row.sell_price),
     originalPrice: nullableNumber(row.previous_sell_price), cashPrice: nullableNumber(row.cash_price),
     exchangePrice: nullableNumber(row.exchange_price), imageUrl: String(row.image_url || ''),
-    inStock: Boolean(row.in_stock), stockCount: nullableNumber(row.stock_count),
-    condition: (row.condition as GameItem['condition']) || undefined, rating: nullableNumber(row.rating),
-    genre: row.genre ? String(row.genre) : undefined, cexUrl: String(row.cex_url), priceHistory: [],
-    lastUpdated: new Date(String(row.last_seen_at)).toISOString(), popular: false,
+    inStock: Boolean(row.in_stock), inStockStore: Boolean(row.in_stock_store), inStockOnline: Boolean(row.in_stock_online),
+    stockCount: nullableNumber(row.stock_count), condition: (row.condition as GameItem['condition']) || undefined,
+    rating: nullableNumber(row.rating), ageRating: row.age_rating ? String(row.age_rating) : undefined,
+    genre: row.genre ? String(row.genre) : undefined, genres: stringArray(row.genres),
+    developer: row.developer ? String(row.developer) : undefined, stores: stringArray(row.stores),
+    popularityScore: nullableNumber(row.popularity_score), cexUrl: String(row.cex_url), priceHistory: [],
+    lastUpdated: new Date(String(row.last_seen_at)).toISOString(), popular: Number(row.popularity_score || 0) > 0,
   };
 }
 
-const SORT_SQL: Record<NonNullable<GameQuery['sort']>, string> = {
-  price_asc: 'g.sell_price ASC, g.title ASC',
-  price_desc: 'g.sell_price DESC, g.title ASC',
-  discount: '(g.previous_sell_price - g.sell_price) DESC NULLS LAST, g.sell_price ASC',
-  title: 'g.title ASC',
-  rating: 'g.rating DESC NULLS LAST, g.title ASC',
+const EMPTY_FACETS: CatalogFacets = {
+  availability: [], stores: [], categories: [], ageRatings: [], conditions: [], developers: [], genres: [],
 };
+
+function facetRows(rows: unknown): { value: string; count: number }[] {
+  return (rows as DbRow[]).map((row) => ({ value: String(row.value), count: Number(row.count || 0) }));
+}
+
+function sortSql(sort: SortBy | undefined, query: string | undefined, bind: (value: unknown) => string) {
+  if (sort === 'relevance') {
+    if (!query) return 'COALESCE(g.popularity_score, 0) DESC, g.title ASC';
+    const exact = bind(query);
+    const prefix = bind(`${query}%`);
+    return `CASE WHEN g.title ILIKE ${exact} THEN 0 WHEN g.title ILIKE ${prefix} THEN 1 ELSE 2 END, COALESCE(g.popularity_score, 0) DESC, g.title ASC`;
+  }
+  return {
+    relevance: 'COALESCE(g.popularity_score, 0) DESC, g.title ASC',
+    popularity: 'COALESCE(g.popularity_score, 0) DESC, g.rating DESC NULLS LAST, g.title ASC',
+    price_asc: 'g.sell_price ASC, g.title ASC',
+    price_desc: 'g.sell_price DESC, g.title ASC',
+    title_asc: 'g.title ASC',
+    title_desc: 'g.title DESC',
+    rating: 'g.rating DESC NULLS LAST, g.title ASC',
+  }[sort || 'relevance'];
+}
 
 export async function listGames(query: GameQuery) {
   const sql = getSql();
@@ -97,23 +125,34 @@ export async function listGames(query: GameQuery) {
   const bind = (value: unknown) => { values.push(value); return `$${values.length}`; };
   if (query.platform) clauses.push(`g.platform = ${bind(query.platform)}`);
   if (query.query) {
-    const titleParam = bind(`%${query.query}%`);
-    const genreParam = bind(`%${query.query}%`);
-    clauses.push(`(g.title ILIKE ${titleParam} OR COALESCE(g.genre, '') ILIKE ${genreParam})`);
+    const searchParam = bind(`%${query.query}%`);
+    clauses.push(`(g.title ILIKE ${searchParam} OR COALESCE(g.genre, '') ILIKE ${searchParam} OR COALESCE(g.developer, '') ILIKE ${searchParam} OR EXISTS (SELECT 1 FROM unnest(g.genres) AS genre(value) WHERE genre.value ILIKE ${searchParam}))`);
   }
+  if (query.minPrice !== undefined) clauses.push(`g.sell_price >= ${bind(query.minPrice)}`);
   if (query.maxPrice !== undefined) clauses.push(`g.sell_price <= ${bind(query.maxPrice)}`);
-  if (query.inStock) clauses.push('g.in_stock = true');
+  if (query.availability?.length) {
+    const availabilityClauses = [];
+    if (query.availability.includes('store')) availabilityClauses.push('g.in_stock_store = true');
+    if (query.availability.includes('online')) availabilityClauses.push('g.in_stock_online = true');
+    if (availabilityClauses.length) clauses.push(`(${availabilityClauses.join(' OR ')})`);
+  }
+  if (query.stores?.length) clauses.push(`g.stores && ${bind(query.stores)}::text[]`);
+  if (query.categories?.length) clauses.push(`g.category_name = ANY(${bind(query.categories)}::text[])`);
+  if (query.ageRatings?.length) clauses.push(`g.age_rating = ANY(${bind(query.ageRatings)}::text[])`);
+  if (query.conditions?.length) clauses.push(`g.condition = ANY(${bind(query.conditions)}::text[])`);
+  if (query.developers?.length) clauses.push(`g.developer = ANY(${bind(query.developers)}::text[])`);
+  if (query.genres?.length) clauses.push(`g.genres && ${bind(query.genres)}::text[]`);
   if (query.priceDrops) clauses.push('g.previous_sell_price > g.sell_price');
   if (query.ids?.length) clauses.push(`g.box_id = ANY(${bind(query.ids)}::text[])`);
   const where = clauses.join(' AND ');
   const filterValues = [...values];
-  const order = SORT_SQL[query.sort || 'discount'];
+  const order = sortSql(query.sort, query.query, bind);
   const offset = (query.page - 1) * query.pageSize;
   const rows = await sql.query(
     `SELECT g.* FROM games g WHERE ${where} ORDER BY ${order} LIMIT ${bind(query.pageSize)} OFFSET ${bind(offset)}`,
     values
   );
-  const [countRows, platformRows, syncRows] = await Promise.all([
+  const [countRows, platformRows, syncRows, availabilityRows, categoryRows, ageRatingRows, conditionRows, developerRows, genreRows, storeRows] = await Promise.all([
     sql.query(`SELECT count(*)::int AS total FROM games g WHERE ${where}`, filterValues),
     query.includeMeta
       ? sql.query(`SELECT platform, count(*)::int AS count FROM games WHERE is_active = true GROUP BY platform ORDER BY platform`)
@@ -121,13 +160,44 @@ export async function listGames(query: GameQuery) {
     query.includeMeta
       ? sql.query(`SELECT finished_at FROM sync_runs WHERE status IN ('succeeded', 'partial') ORDER BY finished_at DESC NULLS LAST LIMIT 1`)
       : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT value, count(*)::int AS count FROM (SELECT CASE WHEN in_stock_store THEN 'store' END AS value FROM games WHERE is_active = true UNION ALL SELECT CASE WHEN in_stock_online THEN 'online' END AS value FROM games WHERE is_active = true) availability WHERE value IS NOT NULL GROUP BY value ORDER BY value`)
+      : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT category_name AS value, count(*)::int AS count FROM games WHERE is_active = true GROUP BY category_name ORDER BY count DESC, value LIMIT 300`)
+      : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT age_rating AS value, count(*)::int AS count FROM games WHERE is_active = true AND age_rating IS NOT NULL GROUP BY age_rating ORDER BY count DESC, value LIMIT 100`)
+      : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT condition AS value, count(*)::int AS count FROM games WHERE is_active = true AND condition IS NOT NULL GROUP BY condition ORDER BY count DESC, value LIMIT 100`)
+      : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT developer AS value, count(*)::int AS count FROM games WHERE is_active = true AND developer IS NOT NULL GROUP BY developer ORDER BY count DESC, value LIMIT 500`)
+      : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT value, count(*)::int AS count FROM games CROSS JOIN LATERAL unnest(genres) AS genre(value) WHERE is_active = true GROUP BY value ORDER BY count DESC, value LIMIT 300`)
+      : Promise.resolve([]),
+    query.includeMeta
+      ? sql.query(`SELECT value, count(*)::int AS count FROM games CROSS JOIN LATERAL unnest(stores) AS store(value) WHERE is_active = true GROUP BY value ORDER BY count DESC, value LIMIT 500`)
+      : Promise.resolve([]),
   ]);
   return {
     games: (rows as DbRow[]).map(rowToGame), total: Number((countRows as DbRow[])[0]?.total || 0),
     countsByPlatform: Object.fromEntries((platformRows as DbRow[]).map((row) => [String(row.platform), Number(row.count)])),
     lastSuccessfulSyncAt: (syncRows as DbRow[])[0]?.finished_at
       ? new Date(String((syncRows as DbRow[])[0].finished_at)).toISOString() : null,
+    facets: query.includeMeta ? {
+      availability: facetRows(availabilityRows), stores: facetRows(storeRows), categories: facetRows(categoryRows),
+      ageRatings: facetRows(ageRatingRows), conditions: facetRows(conditionRows), developers: facetRows(developerRows),
+      genres: facetRows(genreRows),
+    } : EMPTY_FACETS,
   };
+}
+
+function stringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => String(item).trim()).filter(Boolean);
 }
 
 function asJsonArray<T>(value: unknown): T[] {
