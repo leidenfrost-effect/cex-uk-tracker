@@ -5,11 +5,11 @@
 :root {
   color-scheme: light;
   --theme-zinc-50: 248 250 252;
-  --theme-zinc-100: 241 245 249;
-  --theme-zinc-200: 226 232 240;
-  --theme-zinc-300: 203 213 225;
+  --theme-zinc-100: 15 23 42;
+  --theme-zinc-200: 51 65 85;
+  --theme-zinc-300: 71 85 105;
   --theme-zinc-400: 100 116 139;
-  --theme-zinc-500: 71 85 105;
+  --theme-zinc-500: 100 116 139;
   --theme-zinc-600: 51 65 85;
   --theme-zinc-700: 203 213 225;
   --theme-zinc-800: 226 232 240;
