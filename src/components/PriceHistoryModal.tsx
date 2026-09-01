@@ -74,12 +74,12 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
+      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-zinc-800 flex items-center justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-500 flex items-center justify-center">
               <History className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -136,7 +136,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
                     <TrendingDown className="w-4 h-4" /> {formatGbp(Math.abs(priceDifference))}
                   </span>
                 ) : priceDifference > 0 ? (
-                  <span className="text-rose-400 flex items-center gap-0.5">
+                  <span className="text-orange-400 flex items-center gap-0.5">
                     <TrendingUp className="w-4 h-4" /> +{formatGbp(priceDifference)}
                   </span>
                 ) : (
@@ -152,7 +152,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
           {/* Visual Timeline / Price History Log */}
           <div>
             <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-red-500" />
+              <Calendar className="w-3.5 h-3.5 text-blue-500" />
               Fiyat Geçmişi Kayıtları (Günlük Takip)
             </h4>
 
@@ -160,7 +160,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
               {isLoadingHistory ? (
                 <div className="py-4 text-center text-xs text-zinc-500">Fiyat geçmişi yükleniyor...</div>
               ) : historyError ? (
-                <div className="py-4 text-center text-xs text-rose-400">{historyError}</div>
+                <div className="py-4 text-center text-xs text-orange-400">{historyError}</div>
               ) : history.length > 0 ? (
                 history.map((entry, index) => {
                   const isLatest = index === history.length - 1;
@@ -172,7 +172,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-zinc-400">{entry.date}</span>
                         {isLatest && (
-                          <span className="bg-red-600/30 text-red-300 text-[10px] font-bold px-1.5 py-0.2 rounded border border-red-500/30">
+                          <span className="bg-blue-600/30 text-blue-300 text-[10px] font-bold px-1.5 py-0.2 rounded border border-blue-500/30">
                             Son Güncel
                           </span>
                         )}
@@ -184,7 +184,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
                             🔻 {formatGbp(Math.abs(diff))} düştü
                           </span>
                         ) : diff > 0 ? (
-                          <span className="text-[11px] text-rose-400 font-semibold flex items-center">
+                          <span className="text-[11px] text-orange-400 font-semibold flex items-center">
                             🔺 +{formatGbp(diff)} arttı
                           </span>
                         ) : null}
@@ -244,7 +244,7 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
                   value={newPriceInput}
                   onChange={(e) => setNewPriceInput(e.target.value)}
                   placeholder="Örn: 24.50"
-                  className="bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 py-1 text-xs text-white w-28 focus:outline-none focus:border-red-500"
+                  className="bg-zinc-800 border border-zinc-600 rounded-lg px-2.5 py-1 text-xs text-white w-28 focus:outline-none focus:border-blue-500"
                   autoFocus
                 />
                 <button
@@ -267,12 +267,12 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({ game, onCl
         </div>
 
         {/* Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 bg-[#202020] p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 bg-zinc-800 p-4">
           <a
             href={game.cexUrl || `https://uk.webuy.com/search?stext=${encodeURIComponent(game.title)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-red-400 hover:text-red-300 font-semibold flex items-center gap-1.5"
+            className="text-xs text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1.5"
           >
             <span>CeX UK Resmi Ürün Sayfasına Git</span>
             <ExternalLink className="w-3.5 h-3.5" />

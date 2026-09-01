@@ -56,7 +56,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
   };
 
   return (
-    <div className="group relative flex min-w-0 flex-col justify-between rounded-2xl border border-zinc-800 bg-[#1c1c1c] p-3 shadow-md transition-all duration-200 hover:border-zinc-700/90 hover:bg-[#222222] hover:shadow-xl sm:p-4">
+    <div className="group relative flex min-w-0 flex-col justify-between rounded-2xl border border-zinc-800 bg-zinc-900 p-3 shadow-md transition-all duration-200 hover:border-zinc-700/90 hover:bg-zinc-800 hover:shadow-xl sm:p-4">
       
       {/* Top Media & Platform Header */}
       <div>
@@ -86,7 +86,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
           {/* Discount / Deal Badges (Top Right) */}
           <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
             {discountPercent > 0 && (
-              <span className="flex items-center gap-1 bg-red-600/90 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow-md backdrop-blur-md border border-red-400/40">
+              <span className="flex items-center gap-1 bg-blue-600/90 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow-md backdrop-blur-md border border-blue-400/40">
                 <Flame className="w-3 h-3 text-amber-300" />
                 -%{discountPercent}
               </span>
@@ -200,7 +200,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onOpenPriceHistory }) 
                 ? 'bg-emerald-600 text-white'
                 : isInBasket
                 ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700'
-                : 'bg-red-600 hover:bg-red-500 text-white shadow-red-600/20'
+                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20'
             }`}
           >
             {justAdded ? (

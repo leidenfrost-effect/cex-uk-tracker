@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   TrendingDown,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface MobileBottomNavProps {
   activeView: 'catalog' | 'trends';
@@ -28,13 +29,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   const itemClass = (isActive = false) =>
     `flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-semibold transition-colors ${
-      isActive ? 'bg-red-600/15 text-red-300' : 'text-zinc-400 hover:text-white'
+      isActive ? 'bg-blue-600/15 text-blue-300' : 'text-zinc-400 hover:text-white'
     }`;
 
   return (
     <nav
       aria-label="Mobil uygulama navigasyonu"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-800 bg-[#151515]/95 px-2 pt-1.5 shadow-[0_-8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:hidden pb-safe"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-800 bg-zinc-900/95 px-2 pt-1.5 shadow-[0_-8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:hidden pb-safe"
     >
       <div className="mx-auto flex max-w-lg items-stretch gap-1">
         <button
@@ -79,6 +80,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <span>Bütçe</span>
         </button>
 
+        <ThemeToggle />
+
         <button
           type="button"
           onClick={onOpenBasket}
@@ -88,7 +91,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <span className="relative">
             <ShoppingBag className="h-5 w-5" />
             {basketCount > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white">
+              <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-black text-white">
                 {basketCount}
               </span>
             )}

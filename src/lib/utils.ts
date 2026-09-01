@@ -66,7 +66,7 @@ export function getPlatformLabel(platform: string): string {
 export function getPriorityMeta(priority: PriorityLevel): { label: string; color: string; badge: string } {
   switch (priority) {
     case 'must_buy':
-      return { label: 'Kesin Alınacak 🔥', color: 'text-rose-400', badge: 'bg-rose-950/80 text-rose-300 border-rose-800' };
+      return { label: 'Kesin Alınacak 🔥', color: 'text-orange-400', badge: 'bg-orange-950/80 text-orange-300 border-orange-800' };
     case 'high':
       return { label: 'Yüksek Öncelik ⭐', color: 'text-amber-400', badge: 'bg-amber-950/80 text-amber-300 border-amber-800' };
     case 'nice_to_have':

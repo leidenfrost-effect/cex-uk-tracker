@@ -10,13 +10,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        zinc: {
+          50: 'rgb(var(--theme-zinc-50) / <alpha-value>)',
+          100: 'rgb(var(--theme-zinc-100) / <alpha-value>)',
+          200: 'rgb(var(--theme-zinc-200) / <alpha-value>)',
+          300: 'rgb(var(--theme-zinc-300) / <alpha-value>)',
+          400: 'rgb(var(--theme-zinc-400) / <alpha-value>)',
+          500: 'rgb(var(--theme-zinc-500) / <alpha-value>)',
+          600: 'rgb(var(--theme-zinc-600) / <alpha-value>)',
+          700: 'rgb(var(--theme-zinc-700) / <alpha-value>)',
+          800: 'rgb(var(--theme-zinc-800) / <alpha-value>)',
+          900: 'rgb(var(--theme-zinc-900) / <alpha-value>)',
+          950: 'rgb(var(--theme-zinc-950) / <alpha-value>)',
+        },
         cex: {
-          red: '#E00000',
-          darkRed: '#B00000',
-          black: '#121212',
-          surface: '#1E1E1E',
-          surfaceLight: '#282828',
-          border: '#333333',
+          black: 'rgb(var(--theme-zinc-950) / <alpha-value>)',
+          surface: 'rgb(var(--theme-zinc-900) / <alpha-value>)',
+          surfaceLight: 'rgb(var(--theme-zinc-800) / <alpha-value>)',
+          border: 'rgb(var(--theme-zinc-700) / <alpha-value>)',
         },
         ps: {
           blue: '#00439C',

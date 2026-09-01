@@ -62,10 +62,10 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative my-2 max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
+      <div className="relative my-2 max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-zinc-800 flex items-center justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center">
               <Settings className="w-5 h-5" />
@@ -104,7 +104,7 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
                 step="10"
                 value={budgetInput}
                 onChange={(e) => setBudgetInput(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-8 pr-4 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-red-500"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-8 pr-4 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-blue-500"
                 placeholder="Örn: 300"
                 required
               />
@@ -134,7 +134,7 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
                 <button
                   type="button"
                   onClick={handleResetLiveRate}
-                  className="text-[11px] text-red-400 hover:underline flex items-center gap-1"
+                  className="text-[11px] text-blue-400 hover:underline flex items-center gap-1"
                 >
                   <RotateCcw className="w-3 h-3" />
                   Canlı Kura Dön
@@ -149,7 +149,7 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
                 min="1"
                 value={rateInput}
                 onChange={(e) => setRateInput(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-8 pr-4 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-red-500"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-8 pr-4 py-2.5 text-sm text-white font-mono font-bold focus:outline-none focus:border-blue-500"
                 placeholder="Örn: 44.80"
                 required
               />
@@ -180,7 +180,7 @@ export const BudgetSettingsModal: React.FC<BudgetSettingsModalProps> = ({ isOpen
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
             >
               {savedSuccess ? (
                 <>

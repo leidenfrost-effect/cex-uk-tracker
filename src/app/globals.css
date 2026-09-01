@@ -3,17 +3,76 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 18, 18, 18;
-  --background-end-rgb: 10, 10, 10;
+  color-scheme: light;
+  --theme-zinc-50: 248 250 252;
+  --theme-zinc-100: 241 245 249;
+  --theme-zinc-200: 226 232 240;
+  --theme-zinc-300: 203 213 225;
+  --theme-zinc-400: 100 116 139;
+  --theme-zinc-500: 71 85 105;
+  --theme-zinc-600: 51 65 85;
+  --theme-zinc-700: 203 213 225;
+  --theme-zinc-800: 226 232 240;
+  --theme-zinc-900: 255 255 255;
+  --theme-zinc-950: 241 245 249;
+  --theme-accent-300: 147 197 253;
+  --theme-accent-400: 96 165 250;
+  --theme-accent-500: 59 130 246;
+  --theme-accent-600: 37 99 235;
+  --theme-accent-800: 30 64 175;
+  --theme-accent-900: 30 58 138;
+  --theme-accent-950: 23 37 84;
+  --theme-warning-200: 254 215 170;
+  --theme-warning-300: 253 186 116;
+  --theme-warning-400: 251 146 60;
+  --theme-warning-500: 249 115 22;
+  --theme-warning-600: 234 88 12;
+  --theme-warning-800: 154 52 18;
+  --theme-warning-900: 124 45 18;
+  --theme-warning-950: 67 20 7;
+}
+
+.dark {
+  color-scheme: dark;
+  --theme-zinc-50: 248 250 252;
+  --theme-zinc-100: 226 237 247;
+  --theme-zinc-200: 203 213 225;
+  --theme-zinc-300: 168 183 202;
+  --theme-zinc-400: 143 161 183;
+  --theme-zinc-500: 112 131 155;
+  --theme-zinc-600: 83 101 123;
+  --theme-zinc-700: 50 66 88;
+  --theme-zinc-800: 34 49 72;
+  --theme-zinc-900: 23 35 55;
+  --theme-zinc-950: 13 23 38;
+  --theme-accent-300: 147 197 253;
+  --theme-accent-400: 96 165 250;
+  --theme-accent-500: 59 130 246;
+  --theme-accent-600: 37 99 235;
+  --theme-accent-800: 30 64 175;
+  --theme-accent-900: 30 58 138;
+  --theme-accent-950: 23 37 84;
+  --theme-warning-200: 254 215 170;
+  --theme-warning-300: 253 186 116;
+  --theme-warning-400: 251 146 60;
+  --theme-warning-500: 249 115 22;
+  --theme-warning-600: 234 88 12;
+  --theme-warning-800: 154 52 18;
+  --theme-warning-900: 124 45 18;
+  --theme-warning-950: 67 20 7;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: #121212;
+  color: rgb(var(--theme-zinc-100));
+  background: rgb(var(--theme-zinc-950));
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.text-white {
+  color: rgb(var(--theme-zinc-100));
 }
 
 .pb-safe {
@@ -45,16 +104,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #181818;
+  background: rgb(var(--theme-zinc-900));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333333;
+  background: rgb(var(--theme-zinc-700));
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f4f4f;
+  background: rgb(var(--theme-zinc-600));
 }
 
 /* Printable checklist styles for UK travel */

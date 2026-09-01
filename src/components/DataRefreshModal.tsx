@@ -61,10 +61,10 @@ export function DataRefreshModal({ isOpen, onClose }: Props) {
   };
 
   return <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm sm:items-center sm:p-4">
-    <div className="my-2 w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4">
-      <div className="p-4 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
+    <div className="my-2 w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl sm:my-4">
+      <div className="p-4 border-b border-zinc-800 bg-zinc-800 flex items-center justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="p-2 rounded-xl bg-red-600/20 border border-red-500/40"><Database className="w-5 h-5 text-red-400" /></div>
+          <div className="p-2 rounded-xl bg-blue-600/20 border border-blue-500/40"><Database className="w-5 h-5 text-blue-400" /></div>
           <div className="min-w-0"><h3 className="truncate font-bold">CeX Verilerini Yenile</h3><p className="hidden text-xs text-zinc-400 sm:block">Yetkili yönetici işlemi</p></div>
         </div>
         <button onClick={onClose} className="p-2 rounded-xl bg-zinc-800 text-zinc-400 hover:text-white"><X className="w-4 h-4" /></button>
@@ -80,9 +80,9 @@ export function DataRefreshModal({ isOpen, onClose }: Props) {
           <label className="block font-semibold text-zinc-300">Admin parolası</label>
           <div className="relative"><KeyRound className="absolute left-3 top-2.5 w-4 h-4 text-zinc-500" />
             <input type="password" required value={password} onChange={(event) => setPassword(event.target.value)}
-              autoComplete="current-password" className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-10 pr-3 py-2 text-sm outline-none focus:border-red-500" />
+              autoComplete="current-password" className="w-full bg-zinc-900 border border-zinc-700 rounded-xl pl-10 pr-3 py-2 text-sm outline-none focus:border-blue-500" />
           </div>
-          <button disabled={isSubmitting || run?.status === 'running'} className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-50 font-bold flex items-center justify-center gap-2">
+          <button disabled={isSubmitting || run?.status === 'running'} className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 font-bold flex items-center justify-center gap-2">
             {isSubmitting || run?.status === 'running' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             {run?.status === 'running' ? 'Yenileniyor...' : 'Verileri Şimdi Yenile'}
           </button>
@@ -90,7 +90,7 @@ export function DataRefreshModal({ isOpen, onClose }: Props) {
         {run && <div className="rounded-xl border border-zinc-800 bg-black/30 p-3 font-mono text-zinc-300">
           Durum: {run.status} · Görülen: {run.gamesSeen} · Değişen: {run.gamesChanged}
         </div>}
-        {message && <div className={`rounded-xl border p-3 ${run?.status === 'failed' ? 'border-rose-800 bg-rose-950/30 text-rose-300' : 'border-zinc-700 bg-zinc-900 text-zinc-300'}`}>{message}</div>}
+        {message && <div className={`rounded-xl border p-3 ${run?.status === 'failed' ? 'border-orange-800 bg-orange-950/30 text-orange-300' : 'border-zinc-700 bg-zinc-900 text-zinc-300'}`}>{message}</div>}
       </div>
     </div>
   </div>;

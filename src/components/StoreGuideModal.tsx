@@ -15,12 +15,12 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
+      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-zinc-800 flex items-center justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-500 flex items-center justify-center">
               <MapPin className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -69,7 +69,7 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
           {/* Popular Stores in London & UK */}
           <div>
             <h4 className="font-bold text-sm text-white mb-3 flex items-center gap-2">
-              <Navigation className="w-4 h-4 text-red-500" />
+              <Navigation className="w-4 h-4 text-blue-500" />
               Popüler ve En Çok Stok Bulunan CeX Şubeleri
             </h4>
 
@@ -82,7 +82,7 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
                   <div>
                     <div className="flex items-center justify-between gap-1 mb-1">
                       <span className="font-bold text-white text-xs">{store.name}</span>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-950/80 text-red-300 border border-red-800">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-800">
                         {store.city}
                       </span>
                     </div>
@@ -95,7 +95,7 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.name + ' ' + store.address)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 font-semibold"
+                      className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-semibold"
                     >
                       <span>Haritada Aç</span>
                       <ExternalLink className="w-3 h-3" />
@@ -109,10 +109,10 @@ export const StoreGuideModal: React.FC<StoreGuideModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end border-t border-zinc-800 bg-[#202020] p-4">
+        <div className="flex justify-end border-t border-zinc-800 bg-zinc-800 p-4">
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs transition-colors"
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition-colors"
           >
             Anladım, Kapat
           </button>

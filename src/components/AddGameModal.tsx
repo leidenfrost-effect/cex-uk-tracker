@@ -59,10 +59,10 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-3 text-white backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative my-2 max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-[#181818] shadow-2xl sm:my-4 sm:max-h-[90vh]">
+      <div className="relative my-2 max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-[#202020] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-zinc-800 bg-zinc-800 flex items-center justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center">
               <PlusCircle className="w-5 h-5" />
@@ -96,7 +96,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Örn: Ghost of Tsushima Director's Cut"
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-red-500"
+              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -106,7 +106,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
               <select
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value as Platform)}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
               >
                 <option value="PS5">PlayStation 5</option>
                 <option value="PS4">PlayStation 4</option>
@@ -123,7 +123,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 placeholder="Örn: Açık Dünya RPG"
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -139,7 +139,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
                 value={sellPrice}
                 onChange={(e) => setSellPrice(e.target.value)}
                 placeholder="Örn: 22.00"
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-red-500"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500"
               />
             </div>
 
@@ -151,7 +151,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
                 value={originalPrice}
                 onChange={(e) => setOriginalPrice(e.target.value)}
                 placeholder="Örn: 30.00 (Opsiyonel)"
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-red-500"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@ export const AddGameModal: React.FC<AddGameModalProps> = ({ isOpen, onClose }) =
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="https://..."
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"
+              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 

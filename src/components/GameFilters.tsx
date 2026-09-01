@@ -21,7 +21,7 @@ export const GameFilters: React.FC = () => {
   } = useApp();
 
   const platforms: { id: 'ALL' | Platform; label: string; iconBg: string; activeBg: string }[] = [
-    { id: 'ALL', label: 'Tüm Platformlar', iconBg: 'bg-zinc-700', activeBg: 'bg-red-600 text-white border-red-500 shadow-red-600/30' },
+    { id: 'ALL', label: 'Tüm Platformlar', iconBg: 'bg-zinc-700', activeBg: 'bg-blue-600 text-white border-blue-500 shadow-blue-600/30' },
     { id: 'PS5', label: 'PlayStation 5', iconBg: 'bg-blue-600', activeBg: 'bg-blue-600 text-white border-blue-500 shadow-blue-600/30' },
     { id: 'PS4', label: 'PlayStation 4', iconBg: 'bg-indigo-600', activeBg: 'bg-indigo-600 text-white border-indigo-500 shadow-indigo-600/30' },
     { id: 'XBOX_SX', label: 'Xbox Series X/S', iconBg: 'bg-emerald-600', activeBg: 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-600/30' },
@@ -36,7 +36,7 @@ export const GameFilters: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#181818] border border-zinc-800 rounded-2xl p-4 mb-6 shadow-md text-white">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-6 shadow-md text-white">
       {/* Platform Switcher Pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {platforms.map((p) => {
@@ -125,7 +125,7 @@ export const GameFilters: React.FC = () => {
             step={1}
             value={maxPriceFilter}
             onChange={(e) => setMaxPriceFilter(Number(e.target.value))}
-            className="min-w-0 flex-1 cursor-pointer accent-red-600 sm:w-32 sm:flex-none"
+            className="min-w-0 flex-1 cursor-pointer accent-blue-600 sm:w-32 sm:flex-none"
           />
           <span className="font-mono font-bold text-white whitespace-nowrap">
             £{maxPriceFilter}

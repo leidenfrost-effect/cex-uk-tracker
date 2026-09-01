@@ -111,18 +111,18 @@ export const BasketModal: React.FC<BasketModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 p-2 backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4">
       
-      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-[#161616] text-white shadow-2xl sm:my-4 sm:max-h-[90vh]">
+      <div className="relative my-2 flex max-h-[calc(100dvh-1rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 text-white shadow-2xl sm:my-4 sm:max-h-[90vh]">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-zinc-800 bg-[#1c1c1c] p-3 sm:gap-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-800 p-3 sm:gap-4 sm:p-5">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/40 text-red-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-500 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h2 className="line-clamp-1 text-base font-bold text-white sm:text-lg">İngiltere Seyahat Sepetim</h2>
-                <span className="bg-red-600/30 text-red-300 text-xs px-2 py-0.5 rounded-full font-mono font-bold border border-red-500/30">
+                <span className="bg-blue-600/30 text-blue-300 text-xs px-2 py-0.5 rounded-full font-mono font-bold border border-blue-500/30">
                   {basket.length} Oyun
                 </span>
               </div>
@@ -164,11 +164,11 @@ export const BasketModal: React.FC<BasketModalProps> = ({
 
         {/* Budget Status Bar */}
         <div className={`px-3 py-3 border-b text-xs flex flex-wrap items-center justify-between gap-3 sm:px-5 ${
-          isOverBudget ? 'bg-rose-950/60 border-rose-800/80 text-rose-200' : 'bg-zinc-900 border-zinc-800 text-zinc-300'
+          isOverBudget ? 'bg-orange-950/60 border-orange-800/80 text-orange-200' : 'bg-zinc-900 border-zinc-800 text-zinc-300'
         }`}>
           <div className="flex items-center gap-2">
             {isOverBudget ? (
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0" />
             ) : (
               <Plane className="w-4 h-4 text-emerald-400 shrink-0" />
             )}
@@ -183,7 +183,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
 
           <div className="flex items-center gap-3">
             {isOverBudget ? (
-              <span className="font-bold text-rose-400">
+              <span className="font-bold text-orange-400">
                 ⚠️ Bütçe {formatGbp(budgetDiff)} aşıldı!
               </span>
             ) : (
@@ -201,7 +201,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
         </div>
 
         {/* Filter Tabs & Quick Stats */}
-        <div className="flex flex-col items-stretch gap-2 border-b border-zinc-800 bg-[#181818] p-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex flex-col items-stretch gap-2 border-b border-zinc-800 bg-zinc-900 p-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900 p-1 sm:w-auto">
             <button
               onClick={() => setActiveFilter('all')}
@@ -214,7 +214,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
             <button
               onClick={() => setActiveFilter('unpurchased')}
               className={`px-3 py-1 rounded-lg font-medium transition-all ${
-                activeFilter === 'unpurchased' ? 'bg-red-600/80 text-white' : 'text-zinc-400 hover:text-white'
+                activeFilter === 'unpurchased' ? 'bg-blue-600/80 text-white' : 'text-zinc-400 hover:text-white'
               }`}
             >
               Alınacaklar ({basket.filter((i) => !i.purchased).length})
@@ -236,7 +236,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
                   clearBasket();
                 }
               }}
-              className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors"
+              className="text-xs text-orange-400 hover:text-orange-300 flex items-center gap-1 transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Sepeti Temizle</span>
@@ -266,7 +266,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
                   className={`p-3 sm:p-4 rounded-xl border transition-all ${
                     item.purchased
                       ? 'bg-zinc-900/40 border-zinc-800/50 opacity-60'
-                      : 'bg-[#1e1e1e] border-zinc-800 hover:border-zinc-700'
+                      : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -364,7 +364,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
                       {/* Remove Button */}
                       <button
                         onClick={() => removeFromBasket(item.game.id)}
-                        className="p-1.5 text-zinc-500 hover:text-rose-400 bg-zinc-900 border border-zinc-800 hover:border-rose-900 rounded-lg transition-colors"
+                        className="p-1.5 text-zinc-500 hover:text-orange-400 bg-zinc-900 border border-zinc-800 hover:border-orange-900 rounded-lg transition-colors"
                         title="Sepetten Çıkar"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -383,7 +383,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
                           value={item.userNotes || ''}
                           onChange={(e) => updateBasketNotes(item.game.id, e.target.value)}
                           placeholder="Özel seyahat notu ekleyin (örn: Tottenham Court şubesinde kontrol et, Steelbook ara)..."
-                          className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-red-500"
+                          className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-blue-500"
                         />
                         <button
                           onClick={() => setEditingNotesId(null)}
@@ -410,7 +410,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-[#1c1c1c] border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="p-4 bg-zinc-800 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="text-zinc-400">
             <span>Toplam: <strong className="text-white font-mono">{basket.length} oyun</strong></span>
             {basket.filter((i) => i.purchased).length > 0 && (
@@ -423,7 +423,7 @@ export const BasketModal: React.FC<BasketModalProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-md transition-colors"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md transition-colors"
             >
               Kataloğa Dön
             </button>
